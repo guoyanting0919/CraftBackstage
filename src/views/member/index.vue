@@ -36,7 +36,7 @@
           </el-table-column>
           <el-table-column min-width="80px" :label="'年紀'">
             <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
+              <span>{{ scope.row.year }}</span>
             </template>
           </el-table-column>
           <el-table-column min-width="80px" :label="'生日'">
