@@ -11574,7 +11574,7 @@
     &.is-plain {
       color: $primary;
       background: $menuHover;
-      border-color: lighten($primary, 30%);
+      border-color: lighten($primary, 10%);
 
       &:focus,
       &:hover {

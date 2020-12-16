@@ -4,11 +4,11 @@
       <!-- loginTitle -->
       <div class="loginTitle">
         <h1 class="cityTitle" @click="loginBy('System', '123456')">
-          尖石鄉公所
+          {{ title }}
         </h1>
-        <h5 class="cityDescrip" @click="loginBy('r')">
+        <!-- <h5 class="cityDescrip" @click="loginBy('r')">
           長照交通接送統一預約服務及管理系統
-        </h5>
+        </h5> -->
       </div>
       <!-- adminLogin -->
       <div class="adminLogin" v-if="isForget == 1">
@@ -185,6 +185,8 @@ export default {
   name: "Login",
   data() {
     return {
+      //title
+      title: process.env.VUE_APP_WEB_TITLE,
       // announcement
       dialogAnnVisible: false,
       annCategory: "行車公告",

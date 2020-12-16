@@ -12,9 +12,9 @@ $colorGray: #f5f5f5;
 $colorOrange: #f2961a;
 
 /* color var f2961a */
-$primary: #491af2;
-$primaryHover: #4728f4;
-$primaryActive: #6400e7;
+$primary: #c9b175;
+$primaryHover: #cab98e;
+$primaryActive: #ceb87f;
 $primaryPlain: #e9cd99;
 $success: #409167;
 $successHover: #66a785;
@@ -27,8 +27,8 @@ $infoHover: #3b91b6;
 $disableGray: #949494;
 
 //sidebar
-$subMenuBg: lighten($primary, 44%);
-$menuHover: lighten($primary, 40%);
+$subMenuBg: lighten($primary, 33%);
+$menuHover: lighten($primary, 28%);
 
 /* lightMain */
-$lightMain: lighten($primary, 44%);
+$lightMain: lighten($primary, 30%);
