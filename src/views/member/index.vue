@@ -29,42 +29,42 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="80px" :label="'姓名'">
+          <el-table-column min-width="50px" :label="'姓名'">
             <template slot-scope="scope">
               <span>{{ scope.row.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'聯絡電話'">
+          <el-table-column min-width="60px" :label="'聯絡電話'">
             <template slot-scope="scope">
               <span>{{ scope.row.contactTel }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'Email'">
+          <el-table-column min-width="120px" :label="'Email'">
             <template slot-scope="scope">
               <span>{{ scope.row.email }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'類別'">
+          <el-table-column min-width="50px" :label="'類別'">
             <template slot-scope="scope">
               <span>{{ scope.row.memberTypeName }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'職稱'">
+          <el-table-column min-width="30px" :label="'職稱'">
             <template slot-scope="scope">
               <span>{{ scope.row.jobTitle }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'授課領域'">
+          <el-table-column min-width="150px" :label="'授課領域'">
             <template slot-scope="scope">
               <span>{{ scope.row.teachClass }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'研究專長'">
+          <el-table-column min-width="150px" :label="'研究專長'">
             <template slot-scope="scope">
               <span>{{ scope.row.research }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'排序'">
+          <el-table-column min-width="30px" :label="'排序'">
             <template slot-scope="scope">
               <span>{{ scope.row.sort }}</span>
             </template>
@@ -102,7 +102,10 @@
         label-width="100px"
       >
         <el-form-item size="small" :label="'姓名'" prop="name">
-          <el-input v-model="temp.title" placeholder="請輸入姓名"></el-input>
+          <el-input v-model="temp.name" placeholder="請輸入姓名"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'頭銜'">
+          <el-input v-model="temp.subName" placeholder="請輸入頭銜"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'聯絡電話'" prop="contactTel">
           <el-input
@@ -122,6 +125,7 @@
             class="fw"
             placeholder="請選擇類別"
             no-match-text="暫無數據"
+            @change="getTypeName"
           >
             <el-option
               v-for="item in typeList"
@@ -162,6 +166,19 @@
           確認
         </el-button>
         <el-button type="primary" @click="editMember" v-else>確認</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- delete -->
+    <el-dialog title="刪除" :visible.sync="delModal" width="20%">
+      <div class="fw">
+        <strong class="font-s-18"
+          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        </strong>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="delModal = false">取消</el-button>
+        <el-button type="primary" @click="delMember">確認</el-button>
       </span>
     </el-dialog>
   </div>
@@ -215,25 +232,28 @@ export default {
       typeList: [],
       modalTitle: "",
       openModal: false,
+      delModal: false,
+      selectLIstId: "",
+      selectLIstCount: "",
       rules: {
         name: [
           {
             required: true,
-            message: "不能為空",
+            message: "姓名不能為空",
             trigger: "blur",
           },
         ],
         contactTel: [
           {
             required: true,
-            message: "不能為空",
+            message: "聯絡電話不能為空",
             trigger: "blur",
           },
         ],
         email: [
           {
             required: true,
-            message: "不能為空",
+            message: "Email不能為空",
             trigger: "blur",
           },
         ],
@@ -247,7 +267,21 @@ export default {
         jobTitle: [
           {
             required: true,
-            message: "不能為空",
+            message: "職稱不能為空",
+            trigger: "blur",
+          },
+        ],
+        teachClass: [
+          {
+            required: true,
+            message: "授課領域不能為空",
+            trigger: "blur",
+          },
+        ],
+        research: [
+          {
+            required: true,
+            message: "研究專長不能為空",
             trigger: "blur",
           },
         ],
@@ -295,27 +329,97 @@ export default {
           this.openModal = true;
           break;
         case "delete":
-          // if (this.selectLIstCount > 0) {
-          //   this.delModal = true;
-          // } else {
-          //   this.$notify({
-          //     title: "錯誤",
-          //     message: "請先選擇欲刪除之項目！",
-          //     type: "error",
-          //     duration: 2000,
-          //   });
-          // }
+          if (this.selectLIstCount > 0) {
+            this.delModal = true;
+          } else {
+            this.$notify({
+              title: "錯誤",
+              message: "請先選擇欲刪除之項目！",
+              type: "error",
+              duration: 2000,
+            });
+          }
           break;
         default:
           break;
       }
     },
     rowClick() {},
-    handleEdit() {},
-    handleSelectionChange() {},
+    handleEdit(data) {
+      member.getMembers({ id: data.id }).then((res) => {
+        this.temp = Object.assign({}, res.result);
+      });
+      this.modalTitle = "編輯";
+      this.openModal = true;
+    },
+    handleSelectionChange(data) {
+      this.selectListId = data.map((res) => res.id);
+      this.selectLIstCount = data.length;
+    },
     handleCurrentChange() {},
-    addMember() {},
-    editMember() {},
+    getTypeName(typeId) {
+      const vm = this;
+      vm.typeList.filter((item) => {
+        if (typeId === item.dtValue) {
+          vm.temp.memberTypeName = item.name;
+        }
+      });
+    },
+    addMember() {
+      const vm = this;
+      vm.$refs["dataForm"].validate((valid) => {
+        if (valid) {
+          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
+          member.addMembers(vm.temp).then((res) => {
+            if (res.code === 200) {
+              vm.$notify({
+                title: "成功",
+                message: "新增成功",
+                type: "success",
+                duration: 2000,
+              });
+              this.openModal = false;
+              this.getList();
+            }
+          });
+        }
+      });
+    },
+    editMember() {
+      const vm = this;
+      vm.$refs["dataForm"].validate((valid) => {
+        if (valid) {
+          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
+          member.updateMembers(vm.temp).then((res) => {
+            if (res.code === 200) {
+              vm.$notify({
+                title: "成功",
+                message: "修改成功",
+                type: "success",
+                duration: 2000,
+              });
+              this.openModal = false;
+              this.getList();
+            }
+          });
+        }
+      });
+    },
+    delMember() {
+      const vm = this;
+      member.delMembers(vm.selectListId).then((res) => {
+        if (res.code === 200) {
+          vm.$notify({
+            title: "成功",
+            message: "刪除成功",
+            type: "success",
+            duration: 2000,
+          });
+          this.delModal = false;
+          this.getList();
+        }
+      });
+    },
   },
   mounted() {
     this.getButtons();

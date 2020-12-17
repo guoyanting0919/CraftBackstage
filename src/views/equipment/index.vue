@@ -10,7 +10,7 @@
       </div>
     </sticky>
     <div class="app-container flex-item">
-      <Title title="系所成員管理"></Title>
+      <Title title="教學設備與空間管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table
           ref="mainTable"

@@ -2,12 +2,6 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <el-input
-          style="width: 200px; margin-right: 0.5rem"
-          size="mini"
-          clearable
-          placeholder="請輸入關鍵字"
-        ></el-input>
         <permission-btn
           size="mini"
           moduleName="modulemanager"
@@ -16,7 +10,7 @@
       </div>
     </sticky>
     <div class="app-container flex-item">
-      <Title title="最新消息管理"></Title>
+      <Title title="系友專區管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table
           ref="mainTable"
@@ -35,29 +29,19 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="160px" :label="'標題'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.title }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="240px" :label="'內容'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.contents }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'時間'">
+          <el-table-column min-width="100px" :label="'公告日期'">
             <template slot-scope="scope">
               <span>{{ scope.row.releaseDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="50px" :label="'類別'">
+          <el-table-column min-width="200px" :label="'標題'">
             <template slot-scope="scope">
-              <span>{{ scope.row.newsTypeName }}</span>
+              <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="30px" :label="'排序'">
+          <el-table-column min-width="80px" :label="'得獎學生'">
             <template slot-scope="scope">
-              <span>{{ scope.row.sort }}</span>
+              <span>{{ scope.row.author }}</span>
             </template>
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
@@ -92,58 +76,36 @@
         label-position="right"
         label-width="100px"
       >
-        <el-form-item size="small" :label="'標題'" prop="title">
-          <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'內容'" prop="contents">
-          <el-input
-            type="textarea"
-            v-model="temp.contents"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入內容"
-          >
-          </el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'類別'" prop="newsTypeId">
-          <el-select
-            v-model="temp.newsTypeId"
-            class="fw"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="getTypeName"
-          >
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item size="small" :label="'時間'" prop="releaseDate">
+        <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
           <el-date-picker
             class="fw"
             v-model="temp.releaseDate"
             type="date"
-            placeholder="請選擇日期"
+            placeholder="請選擇公告日期"
           >
           </el-date-picker>
         </el-form-item>
-        <el-form-item size="small" :label="'排序'">
+        <el-form-item size="small" :label="'標題'" prop="title">
+          <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'得獎學生'" prop="author">
           <el-input
-            v-model="temp.sort"
-            placeholder="請輸入排序（預設：999）"
+            v-model="temp.author"
+            placeholder="請輸入得獎學生"
           ></el-input>
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button type="primary" @click="addNews" v-if="modalTitle == '新增'">
+        <el-button
+          type="primary"
+          @click="addAlumnis"
+          v-if="modalTitle == '新增'"
+        >
           確認
         </el-button>
-        <el-button type="primary" @click="editNews" v-else>確認</el-button>
+        <el-button type="primary" @click="editAlumnis" v-else>確認</el-button>
       </span>
     </el-dialog>
 
@@ -156,7 +118,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="delModal = false">取消</el-button>
-        <el-button type="primary" @click="delNews">確認</el-button>
+        <el-button type="primary" @click="delAlumnis">確認</el-button>
       </span>
     </el-dialog>
   </div>
@@ -168,11 +130,10 @@ import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
-import * as news from "@/api/news";
-import * as categorys from "@/api/categorys";
+import * as departmentAlumnis from "@/api/departmentAlumnis";
 
 export default {
-  name: "news",
+  name: "departmentAlumnis",
   components: { Sticky, Title, permissionBtn, Pagination },
   data() {
     return {
@@ -185,55 +146,43 @@ export default {
         page: 1,
         limit: 20,
         key: undefined,
-        NewsTypeId: "",
       },
       temp: {
         id: "",
-        newsTypeId: "",
-        newsTypeName: "",
-        releaseDate: "",
         title: "",
+        releaseDate: "",
+        author: "",
         contents: "",
-        attachedFile: "",
-        sort: "",
+        annexFile: "",
       },
-      typeList: [],
-
-      openModal: false,
       modalTitle: "",
+      openModal: false,
       delModal: false,
+      selectLIstId: "",
+      selectLIstCount: "",
       rules: {
         title: [
           {
             required: true,
-            message: "標題不能為空",
-            trigger: "blur",
-          },
-        ],
-        contents: [
-          {
-            required: true,
-            message: "內容不能為空",
-            trigger: "blur",
-          },
-        ],
-        newsTypeId: [
-          {
-            required: true,
-            message: "類別不能為空",
+            message: "姓名不能為空",
             trigger: "blur",
           },
         ],
         releaseDate: [
           {
             required: true,
-            message: "時間不能為空",
+            message: "聯絡電話不能為空",
+            trigger: "blur",
+          },
+        ],
+        author: [
+          {
+            required: true,
+            message: "聯絡電話不能為空",
             trigger: "blur",
           },
         ],
       },
-      selectListId: [],
-      selectLIstCount: "",
     };
   },
   methods: {
@@ -249,28 +198,15 @@ export default {
       return this.buttons.includes(domId);
     },
 
-    /* 獲取最新消資料 */
+    /* 獲取成員資料 */
     getList() {
       const vm = this;
-      news.getList(vm.listQuery).then((res) => {
+      departmentAlumnis.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
         vm.total = res.count;
       });
     },
 
-    /* 獲取最新消息類別 */
-    getType() {
-      const vm = this;
-      let params = {
-        TypeId: "SYS_NEWS",
-        limit: 999,
-      };
-      categorys.getList(params).then((res) => {
-        vm.typeList = res.data;
-      });
-    },
-
-    /* 權限按鈕中控 */
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
@@ -296,7 +232,7 @@ export default {
     },
     rowClick() {},
     handleEdit(data) {
-      news.getNews({ id: data.id }).then((res) => {
+      departmentAlumnis.getAlumnis({ id: data.id }).then((res) => {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
@@ -306,25 +242,12 @@ export default {
       this.selectListId = data.map((res) => res.id);
       this.selectLIstCount = data.length;
     },
-    handleCurrentChange(val) {
-      this.listQuery.page = val.page;
-      this.listQuery.limit = val.limit;
-      this.getList();
-    },
-    getTypeName(typeId) {
-      const vm = this;
-      vm.typeList.filter((item) => {
-        if (typeId === item.dtValue) {
-          vm.temp.newsTypeName = item.name;
-        }
-      });
-    },
-    addNews() {
+    handleCurrentChange() {},
+    addAlumnis() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-          news.addNews(vm.temp).then((res) => {
+          departmentAlumnis.addAlumnis(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -339,12 +262,12 @@ export default {
         }
       });
     },
-    editNews() {
+    editAlumnis() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-          news.updateNews(vm.temp).then((res) => {
+          departmentAlumnis.updateAlumnis(vm.temp).then((res) => {
+            console.log(res);
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -359,9 +282,9 @@ export default {
         }
       });
     },
-    delNews() {
+    delAlumnis() {
       const vm = this;
-      news.delNews(vm.selectListId).then((res) => {
+      departmentAlumnis.delAlumnis(vm.selectListId).then((res) => {
         if (res.code === 200) {
           vm.$notify({
             title: "成功",
@@ -378,16 +301,9 @@ export default {
   mounted() {
     this.getButtons();
     this.getList();
-    this.getType();
   },
 };
 </script>
 
-<style lang="scss">
-.newsModal {
-  label {
-    width: 80px;
-    text-align: right;
-  }
-}
+<style>
 </style>

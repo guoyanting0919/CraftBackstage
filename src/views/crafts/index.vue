@@ -10,7 +10,7 @@
       </div>
     </sticky>
     <div class="app-container flex-item">
-      <Title title="系所成員管理"></Title>
+      <Title title="四大工坊管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table
           ref="mainTable"
@@ -29,42 +29,12 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="80px" :label="'姓名'">
+          <el-table-column min-width="100px" :label="'標題'">
             <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
+              <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'聯絡電話'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.contactTel }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'E-mail'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.email }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'類別'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.memberTypeName }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'職稱'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.jobTitle }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'授課領域'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.teachClass }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'研究專長'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.research }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'排序'">
+          <el-table-column min-width="50px" :label="'排序'">
             <template slot-scope="scope">
               <span>{{ scope.row.sort }}</span>
             </template>
@@ -90,6 +60,55 @@
         />
       </div>
     </div>
+
+    <!-- modal -->
+    <!-- add -->
+    <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
+      <el-form
+        :rules="rules"
+        ref="dataForm"
+        :model="temp"
+        label-position="right"
+        label-width="100px"
+      >
+        <el-form-item size="small" :label="'標題'" prop="title">
+          <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'排序'">
+          <el-input
+            v-model="temp.sort"
+            placeholder="請輸入排序（預設：999）"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="openModal = false">取消</el-button>
+        <el-button
+          type="primary"
+          @click="addClassRooms"
+          v-if="modalTitle == '新增'"
+        >
+          確認
+        </el-button>
+        <el-button type="primary" @click="editClassRooms" v-else
+          >確認</el-button
+        >
+      </span>
+    </el-dialog>
+
+    <!-- delete -->
+    <el-dialog title="刪除" :visible.sync="delModal" width="20%">
+      <div class="fw">
+        <strong class="font-s-18"
+          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        </strong>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="delModal = false">取消</el-button>
+        <el-button type="primary" @click="delClassRooms">確認</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -99,10 +118,10 @@ import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
-import * as member from "@/api/member";
+import * as classRooms from "@/api/classrooms";
 
 export default {
-  name: "member",
+  name: "classRooms",
   components: { Sticky, Title, permissionBtn, Pagination },
   data() {
     return {
@@ -116,6 +135,29 @@ export default {
         limit: 20,
         key: undefined,
       },
+      temp: {
+        id: "",
+        roomTypeId: "",
+        roomTypeName: "",
+        title: "",
+        area: "",
+        height: 0,
+        sort: 0,
+      },
+      modalTitle: "",
+      openModal: false,
+      delModal: false,
+      selectLIstId: "",
+      selectLIstCount: "",
+      rules: {
+        title: [
+          {
+            required: true,
+            message: "標題不能為空",
+            trigger: "blur",
+          },
+        ],
+      },
     };
   },
   methods: {
@@ -128,43 +170,115 @@ export default {
 
     /* 是否擁有按鈕功能權限 */
     hasButton(domId) {
-      console.log(domId);
       return this.buttons.includes(domId);
     },
 
     /* 獲取成員資料 */
     getList() {
       const vm = this;
-      member.getList(vm.listQuery).then((res) => {
+      classRooms.getList(vm.listQuery).then((res) => {
         console.log(res);
         vm.list = res.data;
         vm.total = res.count;
       });
     },
 
-    /* 獲取最新消息類別 */
-    // getType() {
-    //   const vm = this;
-    //   let params = {
-    //     TypeId: "SYS_NEWS",
-    //     limit: 999,
-    //   };
-    //   categorys.getList(params).then((res) => {
-    //     vm.typeList = res.data;
-    //   });
-    // },
     onBtnClicked(domId) {
-      this.$cl(domId);
+      switch (domId) {
+        case "add":
+          this.temp = {};
+          this.modalTitle = "新增";
+          this.openModal = true;
+          break;
+        case "delete":
+          if (this.selectLIstCount > 0) {
+            this.delModal = true;
+          } else {
+            this.$notify({
+              title: "錯誤",
+              message: "請先選擇欲刪除之項目！",
+              type: "error",
+              duration: 2000,
+            });
+          }
+          break;
+        default:
+          break;
+      }
     },
     rowClick() {},
-    handleEdit() {},
-    handleSelectionChange() {},
+    handleEdit(data) {
+      classRooms.getClassRooms({ id: data.id }).then((res) => {
+        this.temp = Object.assign({}, res.result);
+      });
+      this.modalTitle = "編輯";
+      this.openModal = true;
+    },
+    handleSelectionChange(data) {
+      this.selectListId = data.map((res) => res.id);
+      this.selectLIstCount = data.length;
+    },
     handleCurrentChange() {},
+    addClassRooms() {
+      const vm = this;
+      vm.$refs["dataForm"].validate((valid) => {
+        if (valid) {
+          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
+          classRooms.addClassRooms(vm.temp).then((res) => {
+            if (res.code === 200) {
+              vm.$notify({
+                title: "成功",
+                message: "新增成功",
+                type: "success",
+                duration: 2000,
+              });
+              this.openModal = false;
+              this.getList();
+            }
+          });
+        }
+      });
+    },
+    editClassRooms() {
+      const vm = this;
+      vm.$refs["dataForm"].validate((valid) => {
+        if (valid) {
+          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
+          classRooms.updateClassRooms(vm.temp).then((res) => {
+            console.log(res);
+            if (res.code === 200) {
+              vm.$notify({
+                title: "成功",
+                message: "修改成功",
+                type: "success",
+                duration: 2000,
+              });
+              this.openModal = false;
+              this.getList();
+            }
+          });
+        }
+      });
+    },
+    delClassRooms() {
+      const vm = this;
+      classRooms.delClassRooms(vm.selectListId).then((res) => {
+        if (res.code === 200) {
+          vm.$notify({
+            title: "成功",
+            message: "刪除成功",
+            type: "success",
+            duration: 2000,
+          });
+          this.delModal = false;
+          this.getList();
+        }
+      });
+    },
   },
   mounted() {
     this.getButtons();
     this.getList();
-    // this.getType();
   },
 };
 </script>
