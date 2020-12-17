@@ -20,7 +20,7 @@
 
         <el-checkbox
           size="mini"
-          class="m-l-15"
+          class="ml-15"
           @change="tableKey = tableKey + 1"
           v-model="showDescription"
           >Id/描述</el-checkbox
@@ -784,6 +784,7 @@ export default {
               duration: 2000,
             });
             this.getModulesTree();
+            window.location.reload();
           });
         }
       });
@@ -822,6 +823,7 @@ export default {
             });
 
             this.getModulesTree();
+            window.location.reload();
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);

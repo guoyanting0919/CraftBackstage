@@ -4,6 +4,7 @@
 @import "./element-ui.scss";
 @import "./sidebar.scss";
 @import "./btn.scss";
+@import "./distance.scss";
 
 body {
   height: 100%;
@@ -66,14 +67,6 @@ div:focus {
   float: left;
 }
 
-.pr-5 {
-  padding-right: 5px;
-}
-
-.pl-5 {
-  padding-left: 5px;
-}
-
 .block {
   display: block;
 }
@@ -105,9 +98,11 @@ code {
   line-height: 36px;
   font-size: 15px;
   font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+
   a {
     color: #337ab7;
     cursor: pointer;
+
     &:hover {
       color: rgb(32, 160, 255);
     }
@@ -121,6 +116,7 @@ code {
   padding: 1rem;
   line-height: 1.6rem;
   word-spacing: 0.05rem;
+
   a {
     color: #42b983;
     font-weight: 600;
@@ -151,13 +147,16 @@ code {
   transition: 600ms ease position;
   // background: linear-gradient(90deg, rgba(32, 182, 249, 1) 0%, rgba(32, 182, 249, 1) 0%, rgba(33, 120, 241, 1) 100%, rgba(33, 120, 241, 1) 100%);
   background: #d0d0d0;
+
   .subtitle {
     font-size: 20px;
     color: #fff;
   }
+
   &.draft {
     background: #d0d0d0;
   }
+
   &.deleted {
     background: #d0d0d0;
   }
@@ -167,6 +166,7 @@ code {
 .link-type:focus {
   color: $primary;
   cursor: pointer;
+
   &:hover {
     color: $primaryHover;
   }
@@ -174,19 +174,23 @@ code {
 
 .filter-container {
   padding-bottom: 0px;
+
   .filter-item {
     display: inline-block;
     vertical-align: middle;
     margin-bottom: 0px;
   }
+
   .filter-items {
     display: inline-block;
     margin-left: 20px;
   }
+
   .iconfont {
     margin-right: 3px;
     font-size: 11px;
   }
+
   .export-excel-wrapper {
     display: inline-block;
   }
@@ -205,13 +209,16 @@ code {
 table thead th {
   text-align: center !important;
 }
+
 // table td 上下间距减小
 .el-table td {
   padding: 3px 0 !important;
 }
+
 .el-table th {
   padding: 5px 0 !important;
 }
+
 .body-small .el-card__body {
   padding: 10px 5px;
 }
@@ -222,6 +229,7 @@ table thead th {
   padding: 10px !important;
   border-left: 1px solid #efefef;
   border-right: 1px solid #efefef;
+
   .is-in-pagination {
     margin-left: 5px;
   }
@@ -230,6 +238,7 @@ table thead th {
 .color-danger {
   color: #f78989;
 }
+
 .color-success {
   color: #67c23a;
 }
@@ -265,6 +274,7 @@ table thead th {
 .bg-white {
   background-color: white;
 }
+
 .dialog-mini {
   .el-dialog__header {
     height: 35px;
@@ -274,57 +284,72 @@ table thead th {
     overflow: hidden;
     background-color: #f8f8f8;
     padding: 0 20px !important;
+
     .el-dialog__title {
       line-height: 34px;
       font-size: 14px;
       color: #333;
     }
+
     .el-dialog__headerbtn {
       color: #333;
       top: 2.5px;
       right: 11.5px;
     }
   }
-  .el-dialog__footer {
-    height: 50px;
-    width: 100%;
-    text-align: right;
-    padding: 0px 10px !important;
-    border-top: 1px solid #eee;
-    border-radius: 0 0 4px 4px;
-    background-color: #f8f8f8;
-    line-height: 50px;
-  }
-  .el-dialog__body {
-    padding: 24px !important;
-    .el-form {
-      padding-right: 20px;
-      padding-top: 10px;
+
+  .el-dialog {
+    border-radius: 8px;
+
+    &__body {
+      padding: 24px !important;
+
+      .el-form {
+        padding-right: 20px;
+        padding-top: 10px;
+      }
+    }
+
+    &__footer {
+      height: 50px;
+      width: 100%;
+      text-align: right;
+      padding: 0px 10px !important;
+      border-top: 1px solid #eee;
+      border-radius: 0 0 4px 4px;
+      background-color: #f8f8f8;
+      line-height: 50px;
     }
   }
+
   .el-form-item__label {
     font-size: 12px !important;
     font-weight: normal !important;
   }
+
   .el-form-item.el-form-item--small {
     margin-bottom: 8px;
   }
+
   .el-form-item.is-error.is-required.el-form-item--small {
     margin-bottom: 18px;
   }
 }
+
 // .el-table--border{
 // 	border-color:#ebeef5;
 // }
 
 .compent-dialog-body {
   margin: -10px;
+
   .table {
     margin-top: 10px;
     border: 1px solid #ebeef5;
     border-bottom: 0;
     border-right: 0;
   }
+
   .content {
     padding: 10px;
   }
@@ -343,22 +368,41 @@ table thead th {
   flex-basis: 0%;
   display: flex;
 }
+
 .flex-row {
   flex-direction: row;
   flex-basis: 0%;
   display: flex;
 }
+
 .flex-item {
   flex: 1 !important;
   flex-basis: 0% !important;
   overflow: auto;
 }
+
+.align-items-center {
+  align-items: center;
+  display: flex;
+}
+
+.justify-content-center {
+  justify-content: center;
+  display: flex;
+}
+
+.fw {
+  width: 100% !important;
+}
+
 .fh {
   height: 100%;
 }
+
 .ls-border {
   border: 1px solid #ebeef5;
 }
+
 // 垂直居中
 .VMB {
   &::before {
@@ -367,6 +411,7 @@ table thead th {
     height: 100%;
     vertical-align: middle;
   }
+
   .VM {
     display: inline-block;
     vertical-align: middle;
@@ -380,8 +425,10 @@ table thead th {
   text-overflow: ellipsis;
   display: inline-block;
 }
+
 .navbar {
   background: #409eff;
+
   .hamburger-container {
     line-height: 50px;
     height: 50px;
@@ -390,6 +437,7 @@ table thead th {
     padding: 0 10px;
     // margin-right: auto;
   }
+
   .avatar-container {
     height: 50px;
     display: block;
@@ -397,14 +445,17 @@ table thead th {
     margin-left: auto;
     margin-right: 4px;
     order: 10;
+
     .avatar-wrapper {
       cursor: pointer;
       position: relative;
+
       .el-icon-caret-bottom {
         font-size: 16px;
       }
     }
   }
+
   .logo {
     width: 200px;
     text-align: center;
@@ -414,6 +465,7 @@ table thead th {
       width: 200px;
       margin-left: auto;
     }
+
     .user-avatar {
       width: 200px;
       height: 50px;
@@ -428,35 +480,44 @@ table thead th {
       margin-right: 5px;
     }
   }
+
   .hamburger-container {
     color: white;
   }
+
   .avatar-container {
     color: white;
   }
+
   .logo {
     color: white;
   }
 }
+
 .custom-theme {
   #app {
-    .sidebar-container .nest-menu .el-submenu > .el-submenu__title,
+
+    .sidebar-container .nest-menu .el-submenu>.el-submenu__title,
     .sidebar-container .el-submenu .el-menu-item {
       background-color: $subMenuBg !important;
+
       &:hover {
         background-color: $menuHover !important;
       }
     }
   }
+
   .el-submenu__title,
   .submenu-title-noDropdown {
     font-size: 0.95rem;
     // font-weight: 700;
   }
+
   .el-submenu__title:hover,
   .el-menu-item:hover {
     background-color: $menuHover !important;
   }
+
   .navbar {
     border-bottom: 0 !important;
     display: flex;
@@ -467,19 +528,17 @@ table thead th {
     .hamburger-container {
       color: #6b655c;
     }
+
     .avatar-container {
       color: $primary;
     }
+
     .logo {
       color: $primary;
     }
   }
 }
 
-// margin
-.m-l-15 {
-  margin-left: 15px;
-}
 .hide {
   display: none;
   visibility: hidden;

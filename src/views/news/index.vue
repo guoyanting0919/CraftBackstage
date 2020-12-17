@@ -35,42 +35,31 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="80px" :label="'名稱'">
+          <el-table-column min-width="160px" :label="'標題'">
             <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
+              <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'年紀'">
+          <el-table-column min-width="240px" :label="'內容'">
             <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'生日'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'消息'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'地點'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
+              <span>{{ scope.row.contents }}</span>
             </template>
           </el-table-column>
           <el-table-column min-width="80px" :label="'時間'">
             <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
+              <span>{{ scope.row.releaseDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'性別'">
+          <el-table-column min-width="50px" :label="'類別'">
             <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
+              <span>{{ scope.row.newsTypeName }}</span>
             </template>
           </el-table-column>
-
+          <el-table-column min-width="30px" :label="'排序'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.sort }}</span>
+            </template>
+          </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
               <el-button
@@ -92,6 +81,84 @@
         />
       </div>
     </div>
+
+    <!-- modal -->
+    <!-- add -->
+    <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
+      <el-form
+        :rules="rules"
+        ref="dataForm"
+        :model="temp"
+        label-position="right"
+        label-width="100px"
+      >
+        <el-form-item size="small" :label="'標題'" prop="title">
+          <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'內容'" prop="contents">
+          <el-input
+            type="textarea"
+            v-model="temp.contents"
+            :autosize="{ minRows: 2 }"
+            placeholder="請輸入內容"
+          >
+          </el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'類別'" prop="newsTypeId">
+          <el-select
+            v-model="temp.newsTypeId"
+            class="fw"
+            placeholder="請選擇類別"
+            no-match-text="暫無數據"
+            @change="getTypeName"
+          >
+            <el-option
+              v-for="item in typeList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.dtValue"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item size="small" :label="'時間'" prop="releaseDate">
+          <el-date-picker
+            class="fw"
+            v-model="temp.releaseDate"
+            type="date"
+            placeholder="請選擇日期"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item size="small" :label="'排序'">
+          <el-input
+            v-model="temp.sort"
+            placeholder="請輸入排序（預設：999）"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="openModal = false">取消</el-button>
+        <el-button type="primary" @click="addNews" v-if="modalTitle == '新增'">
+          確認
+        </el-button>
+        <el-button type="primary" @click="editNews" v-else>確認</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- delete -->
+    <el-dialog title="刪除" :visible.sync="delModal" width="20%">
+      <div class="fw">
+        <strong class="font-s-18"
+          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        </strong>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="openModal = false">取消</el-button>
+        <el-button type="primary" @click="delNews">確認</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -103,6 +170,7 @@ import Pagination from "@/components/Pagination";
 
 import * as news from "@/api/news";
 import * as categorys from "@/api/categorys";
+
 export default {
   name: "news",
   components: { Sticky, Title, permissionBtn, Pagination },
@@ -110,7 +178,7 @@ export default {
     return {
       /* 權限按鈕 */
       buttons: [],
-      list: [{ name: "aaaa" }], // 菜單列表
+      list: [], // 菜單列表
       total: 10,
       listLoading: false,
       listQuery: {
@@ -123,12 +191,49 @@ export default {
         id: "",
         newsTypeId: "",
         newsTypeName: "",
-        releaseDate: "2020-12-16T07:31:15.488Z",
+        releaseDate: "",
         title: "",
         contents: "",
         attachedFile: "",
-        sort: 999,
+        sort: "",
       },
+      typeList: [],
+
+      openModal: false,
+      modalTitle: "",
+      delModal: false,
+      rules: {
+        title: [
+          {
+            required: true,
+            message: "標題不能為空",
+            trigger: "blur",
+          },
+        ],
+        contents: [
+          {
+            required: true,
+            message: "內容不能為空",
+            trigger: "blur",
+          },
+        ],
+        newsTypeId: [
+          {
+            required: true,
+            message: "類別不能為空",
+            trigger: "blur",
+          },
+        ],
+        releaseDate: [
+          {
+            required: true,
+            message: "時間不能為空",
+            trigger: "blur",
+          },
+        ],
+      },
+      selectListId: [],
+      selectLIstCount: "",
     };
   },
   methods: {
@@ -161,20 +266,112 @@ export default {
         limit: 999,
       };
       categorys.getList(params).then((res) => {
-        vm.$cl(res);
+        vm.typeList = res.data;
       });
     },
 
     /* 權限按鈕中控 */
     onBtnClicked(domId) {
-      this.$cl(domId);
+      switch (domId) {
+        case "add":
+          this.temp = {};
+          this.modalTitle = "新增";
+          this.openModal = true;
+          break;
+        case "delete":
+          if (this.selectLIstCount > 0) {
+            this.delModal = true;
+          } else {
+            this.$notify({
+              title: "錯誤",
+              message: "請先選擇欲刪除之項目！",
+              type: "error",
+              duration: 2000,
+            });
+          }
+          break;
+        default:
+          break;
+      }
     },
     rowClick() {},
-    handleSelectionChange() {},
+    handleEdit(res) {
+      console.log(res);
+      this.temp = res;
+      this.modalTitle = "編輯";
+      this.openModal = true;
+    },
+    handleSelectionChange(data) {
+      this.selectListId = data.map((res) => res.id);
+      this.selectLIstCount = data.length;
+    },
     handleCurrentChange(val) {
       this.listQuery.page = val.page;
       this.listQuery.limit = val.limit;
       this.getList();
+    },
+    getTypeName(typeId) {
+      const vm = this;
+      vm.typeList.filter((item) => {
+        if (typeId === item.dtValue) {
+          vm.temp.newsTypeName = item.name;
+        }
+      });
+    },
+    addNews() {
+      const vm = this;
+      vm.$refs["dataForm"].validate((valid) => {
+        if (valid) {
+          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
+          news.addNews(vm.temp).then((res) => {
+            if (res.code === 200) {
+              vm.$notify({
+                title: "成功",
+                message: "新增成功",
+                type: "success",
+                duration: 2000,
+              });
+              this.openModal = false;
+              this.getList();
+            }
+          });
+        }
+      });
+    },
+    editNews() {
+      const vm = this;
+      vm.$refs["dataForm"].validate((valid) => {
+        if (valid) {
+          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
+          news.updateNews(vm.temp).then((res) => {
+            if (res.code === 200) {
+              vm.$notify({
+                title: "成功",
+                message: "修改成功",
+                type: "success",
+                duration: 2000,
+              });
+              this.openModal = false;
+              this.getList();
+            }
+          });
+        }
+      });
+    },
+    delNews() {
+      const vm = this;
+      news.delNews(vm.selectListId).then((res) => {
+        if (res.code === 200) {
+          vm.$notify({
+            title: "成功",
+            message: "刪除成功",
+            type: "success",
+            duration: 2000,
+          });
+          this.delModal = false;
+          this.getList();
+        }
+      });
     },
   },
   mounted() {
@@ -185,5 +382,11 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+.newsModal {
+  label {
+    width: 80px;
+    text-align: right;
+  }
+}
 </style>
