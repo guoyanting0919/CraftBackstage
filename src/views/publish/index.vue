@@ -2,22 +2,6 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <el-select
-          v-model="getMemberType"
-          class=""
-          placeholder="請選擇類別"
-          no-match-text="暫無數據"
-          @change="filterType"
-        >
-          <el-option value="all" label="全部類別"></el-option>
-          <el-option
-            v-for="item in typeList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.dtValue"
-          >
-          </el-option>
-        </el-select>
         <permission-btn
           size="mini"
           moduleName="modulemanager"
@@ -26,7 +10,7 @@
       </div>
     </sticky>
     <div class="app-container flex-item">
-      <Title title="系所成員管理"></Title>
+      <Title title="研究發表管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table
           ref="mainTable"
@@ -45,44 +29,24 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="50px" :label="'姓名'">
+          <el-table-column min-width="100px" :label="'公告日期'">
             <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
+              <span>{{ scope.row.releaseDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="60px" :label="'聯絡電話'">
+          <el-table-column min-width="80px" :label="'標籤類型'">
             <template slot-scope="scope">
-              <span>{{ scope.row.contactTel }}</span>
+              <span>{{ scope.row.titleType }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="120px" :label="'Email'">
+          <el-table-column min-width="300px" :label="'著作'">
             <template slot-scope="scope">
-              <span>{{ scope.row.email }}</span>
+              <span>{{ scope.row.contents }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="50px" :label="'類別'">
+          <el-table-column min-width="80px" :label="'著作人'">
             <template slot-scope="scope">
-              <span>{{ scope.row.memberTypeName }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="30px" :label="'職稱'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.jobTitle }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="150px" :label="'授課領域'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.teachClass }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="150px" :label="'研究專長'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.research }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="30px" :label="'排序'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.sort }}</span>
+              <span>{{ scope.row.author }}</span>
             </template>
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
@@ -117,71 +81,43 @@
         label-position="right"
         label-width="100px"
       >
-        <el-form-item size="small" :label="'姓名'" prop="name">
-          <el-input v-model="temp.name" placeholder="請輸入姓名"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'頭銜'">
-          <el-input v-model="temp.subName" placeholder="請輸入頭銜"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'聯絡電話'" prop="contactTel">
-          <el-input
-            v-model="temp.contactTel"
-            placeholder="請輸入聯絡電話"
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'Email'" prop="email">
-          <el-input
-            v-model="temp.email"
-            placeholder="請輸入聯絡電話"
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'類別'" prop="memberTypeId">
-          <el-select
-            v-model="temp.memberTypeId"
+        <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
+          <el-date-picker
             class="fw"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="getTypeName"
+            v-model="temp.releaseDate"
+            type="date"
+            placeholder="請選擇日期"
           >
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
-            </el-option>
-          </el-select>
+          </el-date-picker>
         </el-form-item>
-        <el-form-item size="small" :label="'職稱'" prop="jobTitle">
+        <el-form-item size="small" :label="'標籤類型'" prop="titleType">
           <el-input
-            v-model="temp.jobTitle"
-            placeholder="請輸入聯絡電話"
+            v-model="temp.titleType"
+            placeholder="請輸入標籤類型"
           ></el-input>
         </el-form-item>
-        <el-form-item size="small" :label="'授課領域'" prop="teachClass">
-          <el-input v-model="temp.teachClass" placeholder="請輸入"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'研究專長'" prop="research">
-          <el-input v-model="temp.research" placeholder="請輸入"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'排序'">
+        <el-form-item size="small" :label="'著作'" prop="contents">
           <el-input
-            v-model="temp.sort"
-            placeholder="請輸入排序（預設：999）"
+            type="textarea"
+            v-model="temp.contents"
+            :autosize="{ minRows: 2 }"
+            placeholder="請輸入內容"
+          ></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'著作人'" prop="author">
+          <el-input
+            v-model="temp.author"
+            placeholder="請輸入著作人姓名"
           ></el-input>
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addMember"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addAward" v-if="modalTitle == '新增'">
           確認
         </el-button>
-        <el-button type="primary" @click="editMember" v-else>確認</el-button>
+        <el-button type="primary" @click="editAward" v-else>確認</el-button>
       </span>
     </el-dialog>
 
@@ -194,7 +130,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="delModal = false">取消</el-button>
-        <el-button type="primary" @click="delMember">確認</el-button>
+        <el-button type="primary" @click="delAward">確認</el-button>
       </span>
     </el-dialog>
   </div>
@@ -206,11 +142,10 @@ import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
-import * as member from "@/api/member";
-import * as categorys from "@/api/categorys";
+import * as departmentTeachs from "@/api/departmentTeachs";
 
 export default {
-  name: "member",
+  name: "award",
   components: { Sticky, Title, permissionBtn, Pagination },
   data() {
     return {
@@ -220,86 +155,53 @@ export default {
       total: 10,
       listLoading: false,
       listQuery: {
-        MemberTypeId: "",
+        teachTypeId: "SYS_TEACH_RESEARCHPUBLIC",
         page: 1,
         limit: 20,
         key: undefined,
       },
       temp: {
         id: "",
-        subName: "",
-        pic: "",
-        name: "",
-        memberTypeId: "",
-        memberTypeName: "",
-        officeHour: "",
-        jobTitle: "",
-        contactTel: "",
-        teachClass: "",
-        fax: "",
-        addr: "",
-        research: "",
-        department: "",
-        email: "",
-        webUrl: "",
-        bookUrl: "",
-        researchUrl: "",
-        sort: "",
+        teachTypeId: "",
+        teachTypeName: "",
+        releaseDate: "",
+        title: "",
+        titleType: "",
+        author: "",
+        contents: "",
+        annexFile: "",
       },
-      typeList: [],
       modalTitle: "",
       openModal: false,
       delModal: false,
       selectLIstId: "",
       selectLIstCount: "",
-      getMemberType: "all",
       rules: {
-        name: [
+        releaseDate: [
           {
             required: true,
-            message: "姓名不能為空",
+            message: "公告日期不能為空",
             trigger: "blur",
           },
         ],
-        contactTel: [
+        titleType: [
           {
             required: true,
-            message: "聯絡電話不能為空",
+            message: "標籤類型不能為空",
             trigger: "blur",
           },
         ],
-        email: [
+        contents: [
           {
             required: true,
-            message: "Email不能為空",
+            message: "著作不能為空",
             trigger: "blur",
           },
         ],
-        memberTypeId: [
+        author: [
           {
             required: true,
-            message: "類別不能為空",
-            trigger: "blur",
-          },
-        ],
-        jobTitle: [
-          {
-            required: true,
-            message: "職稱不能為空",
-            trigger: "blur",
-          },
-        ],
-        teachClass: [
-          {
-            required: true,
-            message: "授課領域不能為空",
-            trigger: "blur",
-          },
-        ],
-        research: [
-          {
-            required: true,
-            message: "研究專長不能為空",
+            message: "著作人不能為空",
             trigger: "blur",
           },
         ],
@@ -322,27 +224,19 @@ export default {
     /* 獲取成員資料 */
     getList() {
       const vm = this;
-      member.getList(vm.listQuery).then((res) => {
+      departmentTeachs.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
         vm.total = res.count;
       });
     },
 
-    /* 獲取最新消息類別 */
-    getType() {
-      const vm = this;
-      let params = {
-        TypeId: "SYS_MEMBER",
-        limit: 999,
-      };
-      categorys.getList(params).then((res) => {
-        vm.typeList = res.data;
-      });
-    },
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
-          this.temp = {};
+          this.temp = {
+            teachTypeId: "SYS_TEACH_RESEARCHPUBLIC",
+            teachTypeName: "研究發表",
+          };
           this.modalTitle = "新增";
           this.openModal = true;
           break;
@@ -364,7 +258,7 @@ export default {
     },
     rowClick() {},
     handleEdit(data) {
-      member.getMembers({ id: data.id }).then((res) => {
+      departmentTeachs.getDepartmentTeachs({ id: data.id }).then((res) => {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
@@ -375,20 +269,11 @@ export default {
       this.selectLIstCount = data.length;
     },
     handleCurrentChange() {},
-    getTypeName(typeId) {
-      const vm = this;
-      vm.typeList.filter((item) => {
-        if (typeId === item.dtValue) {
-          vm.temp.memberTypeName = item.name;
-        }
-      });
-    },
-    addMember() {
+    addAward() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-          member.addMembers(vm.temp).then((res) => {
+          departmentTeachs.addDepartmentTeachs(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -403,12 +288,11 @@ export default {
         }
       });
     },
-    editMember() {
+    editAward() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-          member.updateMembers(vm.temp).then((res) => {
+          departmentTeachs.updateDepartmentTeachs(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -423,9 +307,9 @@ export default {
         }
       });
     },
-    delMember() {
+    delAward() {
       const vm = this;
-      member.delMembers(vm.selectListId).then((res) => {
+      departmentTeachs.delDepartmentTeachs(vm.selectListId).then((res) => {
         if (res.code === 200) {
           vm.$notify({
             title: "成功",
@@ -438,21 +322,10 @@ export default {
         }
       });
     },
-    filterType(val) {
-      console.log(val);
-      if (val !== "all") {
-        this.listQuery.MemberTypeId = val;
-        this.getList();
-      } else {
-        this.listQuery.MemberTypeId = "";
-        this.getList();
-      }
-    },
   },
   mounted() {
     this.getButtons();
     this.getList();
-    this.getType();
   },
 };
 </script>

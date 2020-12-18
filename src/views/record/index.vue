@@ -2,22 +2,6 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <el-select
-          v-model="getMemberType"
-          class=""
-          placeholder="請選擇類別"
-          no-match-text="暫無數據"
-          @change="filterType"
-        >
-          <el-option value="all" label="全部類別"></el-option>
-          <el-option
-            v-for="item in typeList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.dtValue"
-          >
-          </el-option>
-        </el-select>
         <permission-btn
           size="mini"
           moduleName="modulemanager"
@@ -26,7 +10,7 @@
       </div>
     </sticky>
     <div class="app-container flex-item">
-      <Title title="系所成員管理"></Title>
+      <Title title="展覽紀錄管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table
           ref="mainTable"
@@ -45,42 +29,22 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="50px" :label="'姓名'">
+          <el-table-column min-width="100px" :label="'公告日期'">
             <template slot-scope="scope">
-              <span>{{ scope.row.name }}</span>
+              <span>{{ scope.row.releaseDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="60px" :label="'聯絡電話'">
+          <el-table-column min-width="150px" :label="'標題'">
             <template slot-scope="scope">
-              <span>{{ scope.row.contactTel }}</span>
+              <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="120px" :label="'Email'">
+          <el-table-column min-width="250px" :label="'概要'">
             <template slot-scope="scope">
-              <span>{{ scope.row.email }}</span>
+              <span>{{ scope.row.summary }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="50px" :label="'類別'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.memberTypeName }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="30px" :label="'職稱'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.jobTitle }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="150px" :label="'授課領域'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.teachClass }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="150px" :label="'研究專長'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.research }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="30px" :label="'排序'">
+          <el-table-column min-width="50px" :label="'排序'">
             <template slot-scope="scope">
               <span>{{ scope.row.sort }}</span>
             </template>
@@ -117,54 +81,53 @@
         label-position="right"
         label-width="100px"
       >
-        <el-form-item size="small" :label="'姓名'" prop="name">
-          <el-input v-model="temp.name" placeholder="請輸入姓名"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'頭銜'">
-          <el-input v-model="temp.subName" placeholder="請輸入頭銜"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'聯絡電話'" prop="contactTel">
-          <el-input
-            v-model="temp.contactTel"
-            placeholder="請輸入聯絡電話"
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'Email'" prop="email">
-          <el-input
-            v-model="temp.email"
-            placeholder="請輸入聯絡電話"
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'類別'" prop="memberTypeId">
-          <el-select
-            v-model="temp.memberTypeId"
+        <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
+          <el-date-picker
             class="fw"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="getTypeName"
+            v-model="temp.releaseDate"
+            type="date"
+            placeholder="請選擇日期"
           >
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
-            </el-option>
-          </el-select>
+          </el-date-picker>
         </el-form-item>
-        <el-form-item size="small" :label="'職稱'" prop="jobTitle">
+        <el-form-item size="small" :label="'標題'" prop="title">
+          <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'概要'" prop="summary">
           <el-input
-            v-model="temp.jobTitle"
-            placeholder="請輸入聯絡電話"
+            type="textarea"
+            v-model="temp.summary"
+            :autosize="{ minRows: 2 }"
+            placeholder="請輸入概要"
           ></el-input>
         </el-form-item>
-        <el-form-item size="small" :label="'授課領域'" prop="teachClass">
-          <el-input v-model="temp.teachClass" placeholder="請輸入"></el-input>
+        <el-form-item size="small" :label="'圖片上傳'" prop="pic">
+          <el-upload
+            action="#"
+            list-type="picture-card"
+            :auto-upload="false"
+            :limit="1"
+          >
+            <i slot="default" class="el-icon-plus"></i>
+            <div slot="file" slot-scope="{ file }">
+              <img
+                class="el-upload-list__item-thumbnail"
+                :src="file.url"
+                alt=""
+              />
+              <span class="el-upload-list__item-actions">
+                <span
+                  v-if="!disabled"
+                  class="el-upload-list__item-delete"
+                  @click="handleRemove(file)"
+                >
+                  <i class="el-icon-delete"></i>
+                </span>
+              </span>
+            </div>
+          </el-upload>
         </el-form-item>
-        <el-form-item size="small" :label="'研究專長'" prop="research">
-          <el-input v-model="temp.research" placeholder="請輸入"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'排序'">
+        <el-form-item size="small" :label="'排序'" prop="sort">
           <el-input
             v-model="temp.sort"
             placeholder="請輸入排序（預設：999）"
@@ -174,14 +137,10 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addMember"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addAward" v-if="modalTitle == '新增'">
           確認
         </el-button>
-        <el-button type="primary" @click="editMember" v-else>確認</el-button>
+        <el-button type="primary" @click="editAward" v-else>確認</el-button>
       </span>
     </el-dialog>
 
@@ -194,8 +153,13 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="delModal = false">取消</el-button>
-        <el-button type="primary" @click="delMember">確認</el-button>
+        <el-button type="primary" @click="delAward">確認</el-button>
       </span>
+    </el-dialog>
+
+    <!-- img -->
+    <el-dialog :visible.sync="dialogVisible">
+      <img width="100%" :src="dialogImageUrl" alt="" />
     </el-dialog>
   </div>
 </template>
@@ -206,11 +170,10 @@ import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
-import * as member from "@/api/member";
-import * as categorys from "@/api/categorys";
+import * as teachingResult from "@/api/teachingResult";
 
 export default {
-  name: "member",
+  name: "award",
   components: { Sticky, Title, permissionBtn, Pagination },
   data() {
     return {
@@ -220,90 +183,52 @@ export default {
       total: 10,
       listLoading: false,
       listQuery: {
-        MemberTypeId: "",
+        TypeId: "SYS_ACTALBUM_EXHIBITION",
+        Years: "",
         page: 1,
         limit: 20,
         key: undefined,
       },
       temp: {
         id: "",
-        subName: "",
-        pic: "",
-        name: "",
-        memberTypeId: "",
-        memberTypeName: "",
-        officeHour: "",
-        jobTitle: "",
-        contactTel: "",
-        teachClass: "",
-        fax: "",
-        addr: "",
-        research: "",
-        department: "",
-        email: "",
-        webUrl: "",
-        bookUrl: "",
-        researchUrl: "",
+        albumTypeId: "",
+        albumTypeName: "",
+        title: "",
+        summary: "",
         sort: "",
+        releaseDate: "",
       },
-      typeList: [],
       modalTitle: "",
       openModal: false,
       delModal: false,
       selectLIstId: "",
       selectLIstCount: "",
-      getMemberType: "all",
       rules: {
-        name: [
+        releaseDate: [
           {
             required: true,
-            message: "姓名不能為空",
+            message: "公告日期不能為空",
             trigger: "blur",
           },
         ],
-        contactTel: [
+        title: [
           {
             required: true,
-            message: "聯絡電話不能為空",
+            message: "標題不能為空",
             trigger: "blur",
           },
         ],
-        email: [
+        summary: [
           {
             required: true,
-            message: "Email不能為空",
-            trigger: "blur",
-          },
-        ],
-        memberTypeId: [
-          {
-            required: true,
-            message: "類別不能為空",
-            trigger: "blur",
-          },
-        ],
-        jobTitle: [
-          {
-            required: true,
-            message: "職稱不能為空",
-            trigger: "blur",
-          },
-        ],
-        teachClass: [
-          {
-            required: true,
-            message: "授課領域不能為空",
-            trigger: "blur",
-          },
-        ],
-        research: [
-          {
-            required: true,
-            message: "研究專長不能為空",
+            message: "概要不能為空",
             trigger: "blur",
           },
         ],
       },
+      dialogImageUrl: "",
+      dialogVisible: false,
+      disabled: false,
     };
   },
   methods: {
@@ -322,27 +247,18 @@ export default {
     /* 獲取成員資料 */
     getList() {
       const vm = this;
-      member.getList(vm.listQuery).then((res) => {
+      teachingResult.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
         vm.total = res.count;
-      });
-    },
-
-    /* 獲取最新消息類別 */
-    getType() {
-      const vm = this;
-      let params = {
-        TypeId: "SYS_MEMBER",
-        limit: 999,
-      };
-      categorys.getList(params).then((res) => {
-        vm.typeList = res.data;
       });
     },
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
-          this.temp = {};
+          this.temp = {
+            albumTypeId: "SYS_ACTALBUM_EXHIBITION",
+            albumTypeName: "展覽紀錄",
+          };
           this.modalTitle = "新增";
           this.openModal = true;
           break;
@@ -364,7 +280,7 @@ export default {
     },
     rowClick() {},
     handleEdit(data) {
-      member.getMembers({ id: data.id }).then((res) => {
+      teachingResult.getTeachResult({ id: data.id }).then((res) => {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
@@ -375,20 +291,12 @@ export default {
       this.selectLIstCount = data.length;
     },
     handleCurrentChange() {},
-    getTypeName(typeId) {
+    addAward() {
       const vm = this;
-      vm.typeList.filter((item) => {
-        if (typeId === item.dtValue) {
-          vm.temp.memberTypeName = item.name;
-        }
-      });
-    },
-    addMember() {
-      const vm = this;
+      vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-          member.addMembers(vm.temp).then((res) => {
+          teachingResult.addTeachResult(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -403,12 +311,12 @@ export default {
         }
       });
     },
-    editMember() {
+    editAward() {
       const vm = this;
+      vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-          member.updateMembers(vm.temp).then((res) => {
+          teachingResult.updateTeachResult(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -423,9 +331,9 @@ export default {
         }
       });
     },
-    delMember() {
+    delAward() {
       const vm = this;
-      member.delMembers(vm.selectListId).then((res) => {
+      teachingResult.delTeachResult(vm.selectListId).then((res) => {
         if (res.code === 200) {
           vm.$notify({
             title: "成功",
@@ -438,21 +346,13 @@ export default {
         }
       });
     },
-    filterType(val) {
-      console.log(val);
-      if (val !== "all") {
-        this.listQuery.MemberTypeId = val;
-        this.getList();
-      } else {
-        this.listQuery.MemberTypeId = "";
-        this.getList();
-      }
+    handleRemove(file) {
+      console.log(file);
     },
   },
   mounted() {
     this.getButtons();
     this.getList();
-    this.getType();
   },
 };
 </script>

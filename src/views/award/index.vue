@@ -29,14 +29,19 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="100px" :label="'日期'">
+          <el-table-column min-width="100px" :label="'公告日期'">
             <template slot-scope="scope">
               <span>{{ scope.row.releaseDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="100px" :label="'標題'">
+          <el-table-column min-width="200px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="300px" :label="'內容'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.contents }}</span>
             </template>
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
@@ -71,7 +76,7 @@
         label-position="right"
         label-width="100px"
       >
-        <el-form-item size="small" :label="'日期'" prop="releaseDate">
+        <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
           <el-date-picker
             class="fw"
             v-model="temp.releaseDate"
@@ -82,6 +87,14 @@
         </el-form-item>
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'內容'" prop="contents">
+          <el-input
+            type="textarea"
+            v-model="temp.contents"
+            :autosize="{ minRows: 2 }"
+            placeholder="請輸入內容"
+          ></el-input>
         </el-form-item>
       </el-form>
 
@@ -128,15 +141,21 @@ export default {
       total: 10,
       listLoading: false,
       listQuery: {
+        teachTypeId: "SYS_TEACH_COMPETITION",
         page: 1,
         limit: 20,
         key: undefined,
       },
       temp: {
         id: "",
+        teachTypeId: "",
+        teachTypeName: "",
+        releaseDate: "",
         title: "",
-        link: "",
-        sort: "",
+        titleType: "",
+        author: "",
+        contents: "",
+        annexFile: "",
       },
       modalTitle: "",
       openModal: false,
@@ -144,10 +163,24 @@ export default {
       selectLIstId: "",
       selectLIstCount: "",
       rules: {
+        releaseDate: [
+          {
+            required: true,
+            message: "公告日期不能為空",
+            trigger: "blur",
+          },
+        ],
         title: [
           {
             required: true,
             message: "標題不能為空",
+            trigger: "blur",
+          },
+        ],
+        contents: [
+          {
+            required: true,
+            message: "內容不能為空",
             trigger: "blur",
           },
         ],
@@ -179,7 +212,10 @@ export default {
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
-          this.temp = {};
+          this.temp = {
+            teachTypeId: "SYS_TEACH_COMPETITION",
+            teachTypeName: "競賽得獎",
+          };
           this.modalTitle = "新增";
           this.openModal = true;
           break;
@@ -216,7 +252,6 @@ export default {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
           departmentTeachs.addDepartmentTeachs(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
@@ -236,9 +271,7 @@ export default {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
           departmentTeachs.updateDepartmentTeachs(vm.temp).then((res) => {
-            console.log(res);
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
