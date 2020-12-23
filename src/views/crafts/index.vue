@@ -2,6 +2,37 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
+        <el-select
+          class="mr-10"
+          v-model="getBlockVal"
+          placeholder="請選擇區塊"
+          no-match-text="暫無數據"
+          @change="filterBlock"
+        >
+          <el-option value="all" label="全部區塊"></el-option>
+          <el-option
+            v-for="item in blockList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.dtValue"
+          >
+          </el-option>
+        </el-select>
+        <el-select
+          v-model="getTypeVal"
+          placeholder="請選擇類別"
+          no-match-text="暫無數據"
+          @change="filterType"
+        >
+          <el-option value="all" label="全部類別"></el-option>
+          <el-option
+            v-for="item in typeList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.dtValue"
+          >
+          </el-option>
+        </el-select>
         <permission-btn
           size="mini"
           moduleName="modulemanager"
@@ -34,6 +65,21 @@
               <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
+          <el-table-column min-width="200px" :label="'內容'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.summary }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="50px" :label="'區塊'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.roomTypeName }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="50px" :label="'類別'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.dataTypeName }}</span>
+            </template>
+          </el-table-column>
           <el-table-column min-width="50px" :label="'排序'">
             <template slot-scope="scope">
               <span>{{ scope.row.sort }}</span>
@@ -46,8 +92,9 @@
                 type="warning"
                 @click="handleEdit(scope.row)"
                 v-if="hasButton('edit')"
-                >編輯</el-button
               >
+                編輯
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -74,6 +121,49 @@
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
         </el-form-item>
+        <el-form-item size="small" :label="'內容'" prop="summary">
+          <el-input
+            type="textarea"
+            v-model="temp.summary"
+            :autosize="{ minRows: 2 }"
+            placeholder="請輸入內容"
+          ></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'區塊'" prop="roomTypeId">
+          <el-select
+            v-model="temp.roomTypeId"
+            class="fw"
+            placeholder="請選擇區塊"
+            no-match-text="暫無數據"
+            @change="getBlockName"
+          >
+            <el-option
+              v-for="item in blockList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.dtValue"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item size="small" :label="'類別'" prop="dataTypeId">
+          <el-select
+            v-model="temp.dataTypeId"
+            class="fw"
+            placeholder="請選擇類別"
+            no-match-text="暫無數據"
+            @change="getTypeName"
+          >
+            <el-option
+              v-for="item in typeList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.dtValue"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item size="small" :label="'排序'">
           <el-input
             v-model="temp.sort"
@@ -118,7 +208,8 @@ import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
-import * as classRooms from "@/api/classrooms";
+import * as workshopdatas from "@/api/workshopdatas";
+import * as categorys from "@/api/categorys";
 
 export default {
   name: "classRooms",
@@ -128,9 +219,13 @@ export default {
       /* 權限按鈕 */
       buttons: [],
       list: [], // 菜單列表
+      blockList: [],
+      typeList: [],
       total: 10,
       listLoading: false,
       listQuery: {
+        RoomTypeId: "",
+        DataTypeId: "",
         page: 1,
         limit: 20,
         key: undefined,
@@ -139,10 +234,11 @@ export default {
         id: "",
         roomTypeId: "",
         roomTypeName: "",
+        dataTypeId: "",
+        dataTypeName: "",
         title: "",
-        area: "",
-        height: 0,
-        sort: 0,
+        summary: "",
+        sort: "",
       },
       modalTitle: "",
       openModal: false,
@@ -150,14 +246,16 @@ export default {
       selectLIstId: "",
       selectLIstCount: "",
       rules: {
-        title: [
+        summary: [
           {
             required: true,
-            message: "標題不能為空",
+            message: "內容不能為空",
             trigger: "blur",
           },
         ],
       },
+      getBlockVal: "all",
+      getTypeVal: "all",
     };
   },
   methods: {
@@ -173,13 +271,36 @@ export default {
       return this.buttons.includes(domId);
     },
 
-    /* 獲取成員資料 */
+    /* 獲取資料 */
     getList() {
       const vm = this;
-      classRooms.getList(vm.listQuery).then((res) => {
-        console.log(res);
+      workshopdatas.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
         vm.total = res.count;
+      });
+    },
+
+    /* 獲取區塊類別 */
+    getBlock() {
+      const vm = this;
+      let params = {
+        TypeId: "SYS_CLASSDATA",
+        limit: 999,
+      };
+      categorys.getList(params).then((res) => {
+        vm.blockList = res.data;
+      });
+    },
+
+    /* 獲取四大工坊類別 */
+    getType() {
+      const vm = this;
+      let params = {
+        TypeId: "SYS_CLASSTYPE",
+        limit: 999,
+      };
+      categorys.getList(params).then((res) => {
+        vm.typeList = res.data;
       });
     },
 
@@ -187,6 +308,7 @@ export default {
       switch (domId) {
         case "add":
           this.temp = {};
+          this.temp.sort = 999;
           this.modalTitle = "新增";
           this.openModal = true;
           break;
@@ -208,7 +330,7 @@ export default {
     },
     rowClick() {},
     handleEdit(data) {
-      classRooms.getClassRooms({ id: data.id }).then((res) => {
+      workshopdatas.getWorkShopDatas({ id: data.id }).then((res) => {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
@@ -219,12 +341,28 @@ export default {
       this.selectLIstCount = data.length;
     },
     handleCurrentChange() {},
+    getBlockName(typeId) {
+      const vm = this;
+      vm.blockList.filter((item) => {
+        if (typeId === item.dtValue) {
+          vm.temp.roomTypeName = item.name;
+        }
+      });
+    },
+    getTypeName(typeId) {
+      const vm = this;
+      vm.typeList.filter((item) => {
+        if (typeId === item.dtValue) {
+          vm.temp.dataTypeName = item.name;
+        }
+      });
+    },
     addClassRooms() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
           vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-          classRooms.addClassRooms(vm.temp).then((res) => {
+          workshopdatas.addWorkShopDatas(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -244,7 +382,7 @@ export default {
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
           vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-          classRooms.updateClassRooms(vm.temp).then((res) => {
+          workshopdatas.updateWorkShopDatas(vm.temp).then((res) => {
             console.log(res);
             if (res.code === 200) {
               vm.$notify({
@@ -262,7 +400,7 @@ export default {
     },
     delClassRooms() {
       const vm = this;
-      classRooms.delClassRooms(vm.selectListId).then((res) => {
+      workshopdatas.delWorkShopDatas(vm.selectListId).then((res) => {
         if (res.code === 200) {
           vm.$notify({
             title: "成功",
@@ -275,10 +413,32 @@ export default {
         }
       });
     },
+    filterBlock(val) {
+      console.log(val);
+      if (val !== "all") {
+        this.listQuery.RoomTypeId = val;
+        this.getList();
+      } else {
+        this.listQuery.RoomTypeId = "";
+        this.getList();
+      }
+    },
+    filterType(val) {
+      console.log(val);
+      if (val !== "all") {
+        this.listQuery.DataTypeId = val;
+        this.getList();
+      } else {
+        this.listQuery.DataTypeId = "";
+        this.getList();
+      }
+    },
   },
   mounted() {
     this.getButtons();
     this.getList();
+    this.getBlock();
+    this.getType();
   },
 };
 </script>

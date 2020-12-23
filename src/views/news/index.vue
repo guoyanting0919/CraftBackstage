@@ -275,6 +275,7 @@ export default {
       switch (domId) {
         case "add":
           this.temp = {};
+          this.temp.sort = 999;
           this.modalTitle = "新增";
           this.openModal = true;
           break;

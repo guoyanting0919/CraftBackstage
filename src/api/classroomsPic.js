@@ -1,41 +1,41 @@
 import request from "@/utils/request";
 
-// 獲取教學空間與設備、四大工坊列表
+// 獲取教學空間與設備、四大工坊 圖片列表
 export function getList(params) {
     return request({
-        url: "/classrooms/load",
+        url: "/classRoomPics/LoadByRoomId",
         method: "get",
         params,
     });
 }
 
-export function getClassRooms(params) {
+export function getClassRoomsPic(params) {
     return request({
-        url: "/classrooms/get",
+        url: "/classRoomPics/get",
         method: "get",
         params,
     })
 }
 
-export function addClassRooms(data) {
+export function addClassRoomsPic(data) {
     return request({
-        url: "/classrooms/add",
+        url: "/classRoomPics/add",
         method: "post",
         data,
     });
 }
 
-export function updateClassRooms(data) {
+export function updateClassRoomsPic(data) {
     return request({
-        url: "/classrooms/update",
+        url: "/classRoomPics/update",
         method: "post",
         data,
     });
 }
 
-export function delClassRooms(data) {
+export function delClassRoomsPic(data) {
     return request({
-        url: "/classrooms/delete",
+        url: "/classRoomPics/delete",
         method: "post",
         data,
     });

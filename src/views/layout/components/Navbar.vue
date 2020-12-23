@@ -1,8 +1,8 @@
 <template>
   <el-menu class="navbar" mode="horizontal">
     <div class="logo" style="height: 50px">
-      <!-- <img class="user-avatar" :src="logo" /> -->
-      <div class="user-avatar-text">LOGO</div>
+      <img class="user-avatar" :src="logo" />
+      <!-- <div class="user-avatar-text">LOGO</div> -->
     </div>
     <hamburger
       class="hamburger-container"
@@ -68,7 +68,7 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import Hamburger from "@/components/Hamburger";
-import logo from "@/assets/images/尖石logo.png";
+import logo from "@/assets/images/NTUA_LOGO.svg";
 
 export default {
   data: function () {

@@ -141,7 +141,7 @@ export default {
         id: "",
         title: "",
         link: "",
-        sort: "",
+        sort: 999,
       },
       modalTitle: "",
       openModal: false,

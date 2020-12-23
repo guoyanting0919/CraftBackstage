@@ -56,8 +56,16 @@
                 type="warning"
                 @click="handleEdit(scope.row)"
                 v-if="hasButton('edit')"
-                >編輯</el-button
               >
+                編輯
+              </el-button>
+              <el-button
+                size="mini"
+                type="info"
+                @click="addImage(scope.row.id)"
+              >
+                新增相片
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -101,32 +109,6 @@
             placeholder="請輸入概要"
           ></el-input>
         </el-form-item>
-        <el-form-item size="small" :label="'圖片上傳'" prop="pic">
-          <el-upload
-            action="#"
-            list-type="picture-card"
-            :auto-upload="false"
-            :limit="1"
-          >
-            <i slot="default" class="el-icon-plus"></i>
-            <div slot="file" slot-scope="{ file }">
-              <img
-                class="el-upload-list__item-thumbnail"
-                :src="file.url"
-                alt=""
-              />
-              <span class="el-upload-list__item-actions">
-                <span
-                  v-if="!disabled"
-                  class="el-upload-list__item-delete"
-                  @click="handleRemove(file)"
-                >
-                  <i class="el-icon-delete"></i>
-                </span>
-              </span>
-            </div>
-          </el-upload>
-        </el-form-item>
         <el-form-item size="small" :label="'排序'" prop="sort">
           <el-input
             v-model="temp.sort"
@@ -156,11 +138,6 @@
         <el-button type="primary" @click="delAward">確認</el-button>
       </span>
     </el-dialog>
-
-    <!-- img -->
-    <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="dialogImageUrl" alt="" />
-    </el-dialog>
   </div>
 </template>
 
@@ -170,7 +147,8 @@ import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
-import * as teachingResult from "@/api/teachingResult";
+import * as departmentAlbem from "@/api/departmentAlbem";
+// import * as fileUpload from "@/api/files";
 
 export default {
   name: "award",
@@ -195,7 +173,7 @@ export default {
         albumTypeName: "",
         title: "",
         summary: "",
-        sort: "",
+        sort: 999,
         releaseDate: "",
       },
       modalTitle: "",
@@ -226,9 +204,6 @@ export default {
           },
         ],
       },
-      dialogImageUrl: "",
-      dialogVisible: false,
-      disabled: false,
     };
   },
   methods: {
@@ -247,7 +222,7 @@ export default {
     /* 獲取成員資料 */
     getList() {
       const vm = this;
-      teachingResult.getList(vm.listQuery).then((res) => {
+      departmentAlbem.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
         vm.total = res.count;
       });
@@ -260,6 +235,7 @@ export default {
             albumTypeName: "展覽紀錄",
           };
           this.modalTitle = "新增";
+          this.temp.sort = "999";
           this.openModal = true;
           break;
         case "delete":
@@ -280,11 +256,14 @@ export default {
     },
     rowClick() {},
     handleEdit(data) {
-      teachingResult.getTeachResult({ id: data.id }).then((res) => {
+      departmentAlbem.getAlbums({ id: data.id }).then((res) => {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
       this.openModal = true;
+    },
+    addImage(albumId) {
+      this.$router.push("/record/add/" + albumId);
     },
     handleSelectionChange(data) {
       this.selectListId = data.map((res) => res.id);
@@ -296,7 +275,7 @@ export default {
       vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          teachingResult.addTeachResult(vm.temp).then((res) => {
+          departmentAlbem.addAlbums(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -316,7 +295,8 @@ export default {
       vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          teachingResult.updateTeachResult(vm.temp).then((res) => {
+          console.log(vm.temp);
+          departmentAlbem.updateAlbums(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -333,7 +313,7 @@ export default {
     },
     delAward() {
       const vm = this;
-      teachingResult.delTeachResult(vm.selectListId).then((res) => {
+      departmentAlbem.delAlbums(vm.selectListId).then((res) => {
         if (res.code === 200) {
           vm.$notify({
             title: "成功",
@@ -346,9 +326,6 @@ export default {
         }
       });
     },
-    handleRemove(file) {
-      console.log(file);
-    },
   },
   mounted() {
     this.getButtons();
@@ -357,5 +334,5 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 </style>

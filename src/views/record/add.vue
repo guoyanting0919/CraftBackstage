@@ -1,16 +1,24 @@
 <template>
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
-      <div class="filter-container">
-        <permission-btn
-          size="mini"
-          moduleName="modulemanager"
-          v-on:btn-event="onBtnClicked"
-        ></permission-btn>
+      <div class="featuresBox">
+        <div class="mx-16 featuresBox__goPrev">
+          <i class="el-icon-back" @click="goPrev"></i>
+        </div>
+        <div class="filter-container">
+          <el-button type="primary" size="mini" plain @click="handleAdd">
+            <i class="iconfont icon-xinzeng"></i>
+            新增
+          </el-button>
+          <el-button type="danger" size="mini" plain @click="handleDel">
+            <i class="iconfont icon-garbage"></i>
+            刪除
+          </el-button>
+        </div>
       </div>
     </sticky>
     <div class="app-container flex-item">
-      <Title title="活動花絮管理"></Title>
+      <Title title="新增相簿圖片"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table
           ref="mainTable"
@@ -29,22 +37,17 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="100px" :label="'公告日期'">
+          <el-table-column min-width="100px" :label="'圖片'">
             <template slot-scope="scope">
-              <span>{{ scope.row.releaseDate }}</span>
+              <img :src="scope.row.pic" alt="" width="150px" />
             </template>
           </el-table-column>
-          <el-table-column min-width="150px" :label="'標題'">
+          <el-table-column min-width="100px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="250px" :label="'概要'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.summary }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="50px" :label="'排序'">
+          <el-table-column min-width="30px" :label="'排序'">
             <template slot-scope="scope">
               <span>{{ scope.row.sort }}</span>
             </template>
@@ -55,16 +58,8 @@
                 size="mini"
                 type="warning"
                 @click="handleEdit(scope.row)"
-                v-if="hasButton('edit')"
               >
                 編輯
-              </el-button>
-              <el-button
-                size="mini"
-                type="info"
-                @click="addImage(scope.row.id)"
-              >
-                新增相片
               </el-button>
             </template>
           </el-table-column>
@@ -89,25 +84,22 @@
         label-position="right"
         label-width="100px"
       >
-        <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
-          <el-date-picker
-            class="fw"
-            v-model="temp.releaseDate"
-            type="date"
-            placeholder="請選擇日期"
-          >
-          </el-date-picker>
-        </el-form-item>
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
         </el-form-item>
-        <el-form-item size="small" :label="'概要'" prop="summary">
-          <el-input
-            type="textarea"
-            v-model="temp.summary"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入概要"
-          ></el-input>
+        <el-form-item size="small" :label="'圖片'" prop="pic">
+          <el-upload
+            ref="imageUpload"
+            :show-file-list="false"
+            accept=".png"
+            class="upload-demo"
+            action=""
+            :http-request="customUpload"
+            :limit="999"
+          >
+            <el-button size="small" type="primary">上傳</el-button>
+            <p class="m-0">{{ imgInfo.fileName }}</p>
+          </el-upload>
         </el-form-item>
         <el-form-item size="small" :label="'排序'" prop="sort">
           <el-input
@@ -119,10 +111,14 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button type="primary" @click="addAward" v-if="modalTitle == '新增'">
+        <el-button
+          type="primary"
+          @click="addAlbumPic"
+          v-if="modalTitle == '新增'"
+        >
           確認
         </el-button>
-        <el-button type="primary" @click="editAward" v-else>確認</el-button>
+        <el-button type="primary" @click="editAlbumPic" v-else>確認</el-button>
       </span>
     </el-dialog>
 
@@ -135,60 +131,43 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="delModal = false">取消</el-button>
-        <el-button type="primary" @click="delAward">確認</el-button>
+        <el-button type="primary" @click="delAlbumPic">確認</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
-import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
-import * as departmentAlbem from "@/api/departmentAlbem";
-// import * as fileUpload from "@/api/files";
+import * as departmentAlbemPic from "@/api/departmentAlbemPic";
 
 export default {
   name: "award",
-  components: { Sticky, Title, permissionBtn, Pagination },
+  components: { Sticky, Title, Pagination },
   data() {
     return {
-      /* 權限按鈕 */
-      buttons: [],
       list: [], // 菜單列表
       total: 10,
       listLoading: false,
       listQuery: {
-        TypeId: "SYS_ACTALBUM_ACTIVITY",
-        Years: "",
+        AlbumId: this.$route.params.id,
         page: 1,
         limit: 20,
         key: undefined,
       },
       temp: {
         id: "",
-        albumTypeId: "",
-        albumTypeName: "",
+        albumId: "",
         title: "",
-        summary: "",
-        sort: 999,
-        releaseDate: "",
+        pic: "",
+        sort: "",
+        isCover: false,
       },
-      modalTitle: "",
-      openModal: false,
-      delModal: false,
-      selectLIstId: "",
-      selectLIstCount: "",
       rules: {
-        releaseDate: [
-          {
-            required: true,
-            message: "公告日期不能為空",
-            trigger: "blur",
-          },
-        ],
         title: [
           {
             required: true,
@@ -196,86 +175,80 @@ export default {
             trigger: "blur",
           },
         ],
-        summary: [
-          {
-            required: true,
-            message: "概要不能為空",
-            trigger: "blur",
-          },
-        ],
       },
+      imgInfo: {},
+      modalTitle: "",
+      openModal: false,
+      delModal: false,
+      selectListId: "",
+      selectLIstCount: "",
     };
   },
   methods: {
-    /* 獲取本路由下所有功能按鈕 */
-    getButtons() {
-      this.$route.meta.elements.forEach((el) => {
-        this.buttons.push(el.domId);
-      });
-    },
-
-    /* 是否擁有按鈕功能權限 */
-    hasButton(domId) {
-      return this.buttons.includes(domId);
-    },
-
-    /* 獲取成員資料 */
+    /* 獲取相簿資料 */
     getList() {
       const vm = this;
-      departmentAlbem.getList(vm.listQuery).then((res) => {
+      departmentAlbemPic.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
         vm.total = res.count;
       });
     },
-    onBtnClicked(domId) {
-      switch (domId) {
-        case "add":
-          this.temp = {
-            albumTypeId: "SYS_ACTALBUM_ACTIVITY",
-            albumTypeName: "活動花絮",
-          };
-          this.modalTitle = "新增";
-          this.temp.sort = "999";
-          this.openModal = true;
-          break;
-        case "delete":
-          if (this.selectLIstCount > 0) {
-            this.delModal = true;
-          } else {
-            this.$notify({
-              title: "錯誤",
-              message: "請先選擇欲刪除之項目！",
-              type: "error",
-              duration: 2000,
-            });
-          }
-          break;
-        default:
-          break;
-      }
-    },
-    rowClick() {},
-    handleEdit(data) {
-      departmentAlbem.getAlbums({ id: data.id }).then((res) => {
-        this.temp = Object.assign({}, res.result);
-      });
-      this.modalTitle = "編輯";
-      this.openModal = true;
-    },
-    addImage(albumId) {
-      this.$router.push("/highlight/add/" + albumId);
-    },
+    handleCurrentChange() {},
     handleSelectionChange(data) {
       this.selectListId = data.map((res) => res.id);
       this.selectLIstCount = data.length;
     },
-    handleCurrentChange() {},
-    addAward() {
+    handleAdd() {
+      if (this.$refs.imageUpload) {
+        this.$refs.imageUpload.clearFiles();
+      }
+      this.modalTitle = "新增";
+      this.temp = {};
+      this.imgInfo = {};
+      this.temp.sort = 999;
+      this.openModal = true;
+    },
+    rowClick() {},
+    handleEdit(data) {
+      departmentAlbemPic.getAlbumsPics({ id: data.id }).then((res) => {
+        this.temp = Object.assign({}, res.result);
+      });
+      this.modalTitle = "編輯";
+      this.imgInfo = {};
+      this.openModal = true;
+    },
+    handleDel() {
+      this.delModal = true;
+    },
+    customUpload(file) {
       const vm = this;
-      vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
+      let formData = new FormData();
+      formData.append("files", file.file, file.file.name);
+      axios
+        .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
+        .then((response) => {
+          vm.imgInfo = response.data.result[0];
+          vm.temp.pic = "http://craft.unitgo.tw/" + vm.imgInfo.filePath;
+        })
+        .catch((error) => {
+          console.log({ error });
+        });
+    },
+    addAlbumPic() {
+      const vm = this;
+      console.log(vm.temp.pic);
+      const addInfo = {
+        id: "",
+        albumId: vm.$route.params.id,
+        title: vm.temp.title,
+        pic: vm.temp.pic,
+        sort: vm.temp.sort,
+        isCover: false,
+      };
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          departmentAlbem.addAlbums(vm.temp).then((res) => {
+          console.log(addInfo);
+          departmentAlbemPic.addAlbumsPics(addInfo).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -290,13 +263,11 @@ export default {
         }
       });
     },
-    editAward() {
+    editAlbumPic() {
       const vm = this;
-      vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          console.log(vm.temp);
-          departmentAlbem.updateAlbums(vm.temp).then((res) => {
+          departmentAlbemPic.updateAlbumsPics(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -311,9 +282,9 @@ export default {
         }
       });
     },
-    delAward() {
+    delAlbumPic() {
       const vm = this;
-      departmentAlbem.delAlbums(vm.selectListId).then((res) => {
+      departmentAlbemPic.delAlbumsPics(vm.selectListId).then((res) => {
         if (res.code === 200) {
           vm.$notify({
             title: "成功",
@@ -326,13 +297,33 @@ export default {
         }
       });
     },
+    goPrev() {
+      this.$router.push("/record/index");
+    },
   },
   mounted() {
-    this.getButtons();
     this.getList();
   },
 };
 </script>
 
 <style lang="scss">
+.featuresBox {
+  display: flex;
+  justify-content: space-between;
+  &__goPrev {
+    cursor: pointer;
+  }
+}
+// .disUploadSty .el-upload--picture-card {
+//   display: none; /* 上传按钮隐藏 */
+// }
+// .imgPreview {
+//   .el-dialog__header {
+//     min-height: 40px;
+//   }
+//   .el-dialog__body {
+//     max-height: 100% !important;
+//   }
+// }
 </style>

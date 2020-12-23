@@ -12,6 +12,18 @@ let routerMappingList = [
     path: "/allorder/index",
     title: "預約訂單 / 全部資料",
   },
+  {
+    path: "/record/index",
+    title: "教學成果 / 展覽紀錄",
+  },
+  {
+    path: "/highlight/index",
+    title: "教學成果 / 活動花絮",
+  },
+  {
+    path: "/equipment/index",
+    title: "系所簡介及課程 / 教學設備與空間",
+  },
 ];
 let elementMappingList = ["add", "edit", "detail", "check"];
 

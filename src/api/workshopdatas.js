@@ -1,41 +1,41 @@
 import request from "@/utils/request";
 
-// 獲取教學空間與設備、四大工坊列表
+// 獲取四大工坊列表內容
 export function getList(params) {
     return request({
-        url: "/classrooms/load",
+        url: "/workshopdatas/Load",
         method: "get",
         params,
     });
 }
 
-export function getClassRooms(params) {
+export function getWorkShopDatas(params) {
     return request({
-        url: "/classrooms/get",
+        url: "/workshopdatas/get",
         method: "get",
         params,
     })
 }
 
-export function addClassRooms(data) {
+export function addWorkShopDatas(data) {
     return request({
-        url: "/classrooms/add",
+        url: "/workshopdatas/add",
         method: "post",
         data,
     });
 }
 
-export function updateClassRooms(data) {
+export function updateWorkShopDatas(data) {
     return request({
-        url: "/classrooms/update",
+        url: "/workshopdatas/update",
         method: "post",
         data,
     });
 }
 
-export function delClassRooms(data) {
+export function delWorkShopDatas(data) {
     return request({
-        url: "/classrooms/delete",
+        url: "/workshopdatas/delete",
         method: "post",
         data,
     });

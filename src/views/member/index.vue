@@ -50,7 +50,12 @@
               <span>{{ scope.row.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="60px" :label="'聯絡電話'">
+          <el-table-column min-width="100px" :label="'大頭照'">
+            <template slot-scope="scope">
+              <img :src="scope.row.pic" alt="" width="150px" />
+            </template>
+          </el-table-column>
+          <el-table-column min-width="80px" :label="'聯絡電話'">
             <template slot-scope="scope">
               <span>{{ scope.row.contactTel }}</span>
             </template>
@@ -65,17 +70,17 @@
               <span>{{ scope.row.memberTypeName }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="30px" :label="'職稱'">
+          <el-table-column min-width="50px" :label="'職稱'">
             <template slot-scope="scope">
               <span>{{ scope.row.jobTitle }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="150px" :label="'授課領域'">
+          <el-table-column min-width="120px" :label="'授課領域'">
             <template slot-scope="scope">
               <span>{{ scope.row.teachClass }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="150px" :label="'研究專長'">
+          <el-table-column min-width="120px" :label="'研究專長'">
             <template slot-scope="scope">
               <span>{{ scope.row.research }}</span>
             </template>
@@ -92,6 +97,12 @@
                 type="warning"
                 @click="handleEdit(scope.row)"
                 v-if="hasButton('edit')"
+                >編輯</el-button
+              >
+              <el-button
+                size="mini"
+                type="info"
+                @click="addContent(scope.row.id)"
                 >編輯</el-button
               >
             </template>
@@ -119,6 +130,20 @@
       >
         <el-form-item size="small" :label="'姓名'" prop="name">
           <el-input v-model="temp.name" placeholder="請輸入姓名"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'大頭照'" prop="pic">
+          <el-upload
+            ref="imageUpload"
+            :show-file-list="false"
+            accept=".png,.jpg,.jpeg,.svg"
+            class="upload-demo"
+            action=""
+            :http-request="customUpload"
+            :limit="999"
+          >
+            <el-button size="small" type="primary">上傳</el-button>
+            <p class="m-0">{{ imgInfo.fileName }}</p>
+          </el-upload>
         </el-form-item>
         <el-form-item size="small" :label="'頭銜'">
           <el-input v-model="temp.subName" placeholder="請輸入頭銜"></el-input>
@@ -159,10 +184,20 @@
           ></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'授課領域'" prop="teachClass">
-          <el-input v-model="temp.teachClass" placeholder="請輸入"></el-input>
+          <el-input
+            type="textarea"
+            v-model="temp.teachClass"
+            :autosize="{ minRows: 2 }"
+            placeholder="請輸入授課領域"
+          ></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'研究專長'" prop="research">
-          <el-input v-model="temp.research" placeholder="請輸入"></el-input>
+          <el-input
+            type="textarea"
+            v-model="temp.research"
+            :autosize="{ minRows: 2 }"
+            placeholder="請輸入研究專長"
+          ></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'排序'">
           <el-input
@@ -201,6 +236,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
@@ -244,7 +280,7 @@ export default {
         webUrl: "",
         bookUrl: "",
         researchUrl: "",
-        sort: "",
+        sort: 999,
       },
       typeList: [],
       modalTitle: "",
@@ -258,20 +294,6 @@ export default {
           {
             required: true,
             message: "姓名不能為空",
-            trigger: "blur",
-          },
-        ],
-        contactTel: [
-          {
-            required: true,
-            message: "聯絡電話不能為空",
-            trigger: "blur",
-          },
-        ],
-        email: [
-          {
-            required: true,
-            message: "Email不能為空",
             trigger: "blur",
           },
         ],
@@ -289,21 +311,8 @@ export default {
             trigger: "blur",
           },
         ],
-        teachClass: [
-          {
-            required: true,
-            message: "授課領域不能為空",
-            trigger: "blur",
-          },
-        ],
-        research: [
-          {
-            required: true,
-            message: "研究專長不能為空",
-            trigger: "blur",
-          },
-        ],
       },
+      imgInfo: {},
     };
   },
   methods: {
@@ -342,8 +351,13 @@ export default {
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
-          this.temp = {};
+          if (this.$refs.imageUpload) {
+            this.$refs.imageUpload.clearFiles();
+          }
           this.modalTitle = "新增";
+          this.temp = {};
+          this.temp.sort = 999;
+          this.imgInfo = {};
           this.openModal = true;
           break;
         case "delete":
@@ -368,6 +382,7 @@ export default {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
+      this.imgInfo = {};
       this.openModal = true;
     },
     handleSelectionChange(data) {
@@ -437,6 +452,24 @@ export default {
           this.getList();
         }
       });
+    },
+    customUpload(file) {
+      const vm = this;
+      let formData = new FormData();
+      formData.append("files", file.file, file.file.name);
+      axios
+        .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
+        .then((response) => {
+          console.log(response.data.result[0]);
+          vm.imgInfo = response.data.result[0];
+          vm.temp.pic = "http://craft.unitgo.tw/" + vm.imgInfo.filePath;
+        })
+        .catch((error) => {
+          console.log({ error });
+        });
+    },
+    addContent(id) {
+      this.$router.push("/member/add/" + id);
     },
     filterType(val) {
       console.log(val);
