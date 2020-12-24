@@ -19,7 +19,45 @@
     </sticky>
     <div class="app-container flex-item">
       <Title title="新增相簿圖片"></Title>
-      <div class="bg-white" style="height: calc(100% - 50px)">
+      <div class="bg-white">
+        <el-row class="p-20">
+          <el-col
+            class="p-20"
+            :lg="8"
+            :md="12"
+            :sm="24"
+            v-for="item in list"
+            :key="item.id"
+          >
+            <el-card :body-style="{ padding: '0px' }">
+              <el-image
+                style="width: 100%; height: 400px"
+                :src="item.pic"
+                fit="cover"
+              ></el-image>
+              <div class="p-16">
+                <strong>{{ item.title }}</strong>
+              </div>
+              <div class="featuresBox p-16">
+                <a class="pb-3" v-if="!item.isCover" @click="setCover(item)">
+                  <i class="el-icon-wind-power">設為封面</i>
+                </a>
+                <p class="m-0" v-else>目前封面</p>
+                <el-button
+                  size="mini"
+                  type="warning"
+                  @click="handleEdit(item)"
+                  plain
+                >
+                  編輯
+                </el-button>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table
           ref="mainTable"
           :data="list"
@@ -71,7 +109,7 @@
           :limit.sync="listQuery.limit"
           @pagination="handleCurrentChange"
         />
-      </div>
+      </div> -->
     </div>
 
     <!-- modal -->
@@ -141,17 +179,15 @@
 import axios from "axios";
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
-import Pagination from "@/components/Pagination";
 
 import * as departmentAlbemPic from "@/api/departmentAlbemPic";
 
 export default {
   name: "award",
-  components: { Sticky, Title, Pagination },
+  components: { Sticky, Title },
   data() {
     return {
       list: [], // 菜單列表
-      total: 10,
       listLoading: false,
       listQuery: {
         AlbumId: this.$route.params.id,
@@ -190,10 +226,8 @@ export default {
       const vm = this;
       departmentAlbemPic.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
-        vm.total = res.count;
       });
     },
-    handleCurrentChange() {},
     handleSelectionChange(data) {
       this.selectListId = data.map((res) => res.id);
       this.selectLIstCount = data.length;
@@ -297,6 +331,47 @@ export default {
         }
       });
     },
+    setCover(data) {
+      const vm = this;
+      const modifyInfo = {
+        id: data.id,
+        albumId: data.albumId,
+        title: data.title,
+        pic: data.pic,
+        sort: data.sort,
+        isCover: true,
+      };
+      vm.list.filter((res) => {
+        if (res.isCover) {
+          const cancelSet = {
+            id: res.id,
+            albumId: res.albumId,
+            title: res.title,
+            pic: res.pic,
+            sort: data.sort,
+            isCover: false,
+          };
+          departmentAlbemPic.updateAlbumsPics(cancelSet);
+          departmentAlbemPic.updateAlbumsPics(modifyInfo).then((res) => {
+            if (res.code === 200) {
+              this.getList();
+            }
+          });
+        } else {
+          departmentAlbemPic.updateAlbumsPics(modifyInfo).then((res) => {
+            if (res.code === 200) {
+              this.getList();
+            }
+          });
+        }
+      });
+      vm.$notify({
+        title: "成功",
+        message: "設置成功",
+        type: "success",
+        duration: 2000,
+      });
+    },
     goPrev() {
       this.$router.push("/highlight/index");
     },
@@ -311,6 +386,11 @@ export default {
 .featuresBox {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  a {
+    color: #c9b175;
+    border-bottom: 1px solid #c9b175;
+  }
   &__goPrev {
     cursor: pointer;
   }

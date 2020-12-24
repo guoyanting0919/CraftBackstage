@@ -21,9 +21,20 @@
       <Title :title="'新增圖片（' + albumTitle + '）'"></Title>
       <div class="bg-white">
         <el-row class="p-20">
-          <el-col class="p-20" :span="8" v-for="item in list" :key="item.id">
+          <el-col
+            class="p-20"
+            :lg="8"
+            :md="12"
+            :sm="24"
+            v-for="item in list"
+            :key="item.id"
+          >
             <el-card :body-style="{ padding: '0px' }">
-              <img :src="item.links" width="100%" />
+              <el-image
+                style="width: 100%; height: 400px"
+                :src="item.links"
+                fit="cover"
+              ></el-image>
               <div class="featuresBox p-16">
                 <a class="pb-3" v-if="!item.isCover" @click="setCover(item)">
                   <i class="el-icon-wind-power">設為封面</i>
