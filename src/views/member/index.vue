@@ -99,12 +99,6 @@
                 v-if="hasButton('edit')"
                 >編輯</el-button
               >
-              <el-button
-                size="mini"
-                type="info"
-                @click="addContent(scope.row.id)"
-                >編輯</el-button
-              >
             </template>
           </el-table-column>
         </el-table>
