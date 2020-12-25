@@ -94,6 +94,7 @@
             class="fw"
             v-model="temp.releaseDate"
             type="date"
+            value-format="yyyy-MM-dd"
             placeholder="請選擇日期"
           >
           </el-date-picker>

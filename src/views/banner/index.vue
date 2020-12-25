@@ -1,117 +1,54 @@
 <template>
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
-      <div class="featuresBox">
-        <div class="mx-16 featuresBox__goPrev">
-          <i class="el-icon-back" @click="goPrev"></i>
-        </div>
-        <div class="filter-container">
-          <el-button type="primary" size="mini" plain @click="handleAdd">
-            <i class="iconfont icon-xinzeng"></i>
-            新增
-          </el-button>
-        </div>
+      <div class="filter-container">
+        <el-button type="primary" size="mini" plain @click="handleAdd">
+          <i class="iconfont icon-xinzeng"></i>
+          新增
+        </el-button>
       </div>
     </sticky>
     <div class="app-container flex-item">
-      <Title title="新增相簿圖片"></Title>
+      <Title title="Banner"></Title>
       <div class="bg-white">
         <el-row class="p-20">
           <el-col
             class="p-20"
-            :lg="8"
-            :md="12"
+            :lg="12"
             :sm="24"
             v-for="item in list"
             :key="item.id"
           >
             <el-card :body-style="{ padding: '0px' }">
               <el-image
-                style="width: 100%; height: 400px"
+                style="width: 100%; height: 450px"
                 :src="item.pic"
                 fit="cover"
               ></el-image>
               <div class="p-16">
-                <strong>{{ item.title }}</strong>
-              </div>
-              <div class="featuresBox p-16">
-                <a class="pb-3" v-if="!item.isCover" @click="setCover(item)">
-                  <i class="el-icon-wind-power">設為封面</i>
+                <strong>超連結：</strong>
+                <a class="urlLink" :href="item.links" target="_blank">
+                  {{ item.links }}
                 </a>
-                <p class="m-0" v-else>目前封面</p>
-                <div>
-                  <el-button
-                    size="mini"
-                    type="warning"
-                    @click="handleEdit(item)"
-                    plain
-                  >
-                    編輯
-                  </el-button>
-                  <span
-                    class="iconfont icon-garbage featuresBox__del ml-10 font-s-18"
-                    @click="handleDel(item)"
-                  ></span>
-                </div>
+              </div>
+              <div class="featuresBox px-16 pb-16">
+                <el-button
+                  size="mini"
+                  type="warning"
+                  @click="handleEdit(item)"
+                  plain
+                >
+                  編輯
+                </el-button>
+                <span
+                  class="iconfont icon-garbage featuresBox__del ml-10 font-s-18"
+                  @click="handleDel(item)"
+                ></span>
               </div>
             </el-card>
           </el-col>
         </el-row>
       </div>
-
-      <!-- <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
-          <el-table-column min-width="150px" :label="'圖片'">
-            <template slot-scope="scope">
-              <img :src="scope.row.pic" alt="" width="150px" />
-            </template>
-          </el-table-column>
-          <el-table-column min-width="200px" :label="'標題'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.title }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="30px" :label="'排序'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.sort }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column property="setting" label="操作" width="220">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-              >
-                編輯
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
-      </div> -->
     </div>
 
     <!-- modal -->
@@ -124,14 +61,31 @@
         label-position="right"
         label-width="100px"
       >
-        <el-form-item size="small" :label="'標題'" prop="title">
-          <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
+        <el-form-item size="small" :label="'上架日期'" prop="startDate">
+          <el-date-picker
+            class="fw"
+            v-model="temp.startDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="請選擇上架日期"
+          >
+          </el-date-picker>
         </el-form-item>
-        <el-form-item size="small" :label="'圖片'" prop="pic">
+        <el-form-item size="small" :label="'下架日期'">
+          <el-date-picker
+            class="fw"
+            v-model="temp.endDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="請選擇下架日期"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item size="small" :label="'圖片'">
           <el-upload
             ref="imageUpload"
             :show-file-list="false"
-            accept=".png"
+            accept=".png,.jpg,.jpeg,.svg"
             class="upload-demo"
             action=""
             :http-request="customUpload"
@@ -141,7 +95,10 @@
             <p class="m-0">{{ imgInfo.fileName }}</p>
           </el-upload>
         </el-form-item>
-        <el-form-item size="small" :label="'排序'" prop="sort">
+        <el-form-item size="small" :label="'超連結'">
+          <el-input v-model="temp.links" placeholder="請輸入網址"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'排序'">
           <el-input
             v-model="temp.sort"
             placeholder="請輸入排序（預設：999）"
@@ -180,7 +137,7 @@ import axios from "axios";
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
 
-import * as departmentAlbemPic from "@/api/departmentAlbemPic";
+import * as banner from "@/api/banner";
 
 export default {
   name: "award",
@@ -190,24 +147,23 @@ export default {
       list: [], // 菜單列表
       listLoading: false,
       listQuery: {
-        AlbumId: this.$route.params.id,
         page: 1,
         limit: 20,
         key: undefined,
       },
       temp: {
         id: "",
-        albumId: "",
-        title: "",
         pic: "",
+        links: "",
+        startDate: "",
+        endDate: "",
         sort: "",
-        isCover: false,
       },
       rules: {
-        title: [
+        startDate: [
           {
             required: true,
-            message: "標題不能為空",
+            message: "上架不能為空",
             trigger: "blur",
           },
         ],
@@ -223,7 +179,7 @@ export default {
     /* 獲取相簿資料 */
     getList() {
       const vm = this;
-      departmentAlbemPic.getList(vm.listQuery).then((res) => {
+      banner.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
       });
     },
@@ -239,11 +195,11 @@ export default {
     },
     rowClick() {},
     handleEdit(data) {
-      departmentAlbemPic.getAlbumsPics({ id: data.id }).then((res) => {
+      banner.getBanner({ id: data.id }).then((res) => {
         this.temp = Object.assign({}, res.result);
       });
-      this.modalTitle = "編輯";
       this.imgInfo = {};
+      this.modalTitle = "編輯";
       this.openModal = true;
     },
     handleDel(data) {
@@ -257,6 +213,7 @@ export default {
       axios
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
+          console.log(response.data.result[0]);
           vm.imgInfo = response.data.result[0];
           vm.temp.pic = "http://craft.unitgo.tw/" + vm.imgInfo.filePath;
         })
@@ -266,19 +223,17 @@ export default {
     },
     addAlbumPic() {
       const vm = this;
-      console.log(vm.temp.pic);
       const addInfo = {
         id: "",
-        albumId: vm.$route.params.id,
-        title: vm.temp.title,
         pic: vm.temp.pic,
+        links: vm.temp.links,
+        startDate: vm.temp.startDate,
+        endDate: vm.temp.endDate,
         sort: vm.temp.sort,
-        isCover: false,
       };
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          console.log(addInfo);
-          departmentAlbemPic.addAlbumsPics(addInfo).then((res) => {
+          banner.addBanner(addInfo).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -295,26 +250,22 @@ export default {
     },
     editAlbumPic() {
       const vm = this;
-      vm.$refs["dataForm"].validate((valid) => {
-        if (valid) {
-          departmentAlbemPic.updateAlbumsPics(vm.temp).then((res) => {
-            if (res.code === 200) {
-              vm.$notify({
-                title: "成功",
-                message: "修改成功",
-                type: "success",
-                duration: 2000,
-              });
-              this.openModal = false;
-              this.getList();
-            }
+      banner.updateBanner(vm.temp).then((res) => {
+        if (res.code === 200) {
+          vm.$notify({
+            title: "成功",
+            message: "修改成功",
+            type: "success",
+            duration: 2000,
           });
+          this.openModal = false;
+          this.getList();
         }
       });
     },
     delAlbumPic() {
       const vm = this;
-      departmentAlbemPic.delAlbumsPics(vm.selectListId).then((res) => {
+      banner.delBanner(vm.selectListId).then((res) => {
         if (res.code === 200) {
           vm.$notify({
             title: "成功",
@@ -331,30 +282,29 @@ export default {
       const vm = this;
       const modifyInfo = {
         id: data.id,
-        albumId: data.albumId,
-        title: data.title,
-        pic: data.pic,
-        sort: data.sort,
+        roomId: data.roomId,
+        links: data.links,
         isCover: true,
+        sort: data.sort,
       };
+
       vm.list.filter((res) => {
         if (res.isCover) {
           const cancelSet = {
             id: res.id,
-            albumId: res.albumId,
-            title: res.title,
-            pic: res.pic,
-            sort: data.sort,
+            roomId: res.roomId,
+            links: res.links,
             isCover: false,
+            sort: data.sort,
           };
-          departmentAlbemPic.updateAlbumsPics(cancelSet);
-          departmentAlbemPic.updateAlbumsPics(modifyInfo).then((res) => {
+          banner.updateBanner(cancelSet);
+          banner.updateBanner(modifyInfo).then((res) => {
             if (res.code === 200) {
               this.getList();
             }
           });
         } else {
-          departmentAlbemPic.updateAlbumsPics(modifyInfo).then((res) => {
+          banner.updateBanner(modifyInfo).then((res) => {
             if (res.code === 200) {
               this.getList();
             }
@@ -369,7 +319,7 @@ export default {
       });
     },
     goPrev() {
-      this.$router.push("/highlight/index");
+      this.$router.push("/equipment/index");
     },
   },
   mounted() {
@@ -379,6 +329,14 @@ export default {
 </script>
 
 <style lang="scss">
+.urlLink {
+  text-decoration: underline;
+  color: #d7c69a;
+  &:hover {
+    color: #d7c69a;
+    font-weight: bolder;
+  }
+}
 .featuresBox {
   display: flex;
   justify-content: space-between;

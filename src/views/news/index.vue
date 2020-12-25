@@ -45,7 +45,7 @@
               <span>{{ scope.row.contents }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'時間'">
+          <el-table-column min-width="80px" :label="'公告日期'">
             <template slot-scope="scope">
               <span>{{ scope.row.releaseDate }}</span>
             </template>
@@ -126,6 +126,7 @@
             class="fw"
             v-model="temp.releaseDate"
             type="date"
+            value-format="yyyy-MM-dd"
             placeholder="請選擇日期"
           >
           </el-date-picker>

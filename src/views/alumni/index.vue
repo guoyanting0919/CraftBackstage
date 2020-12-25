@@ -81,6 +81,7 @@
             class="fw"
             v-model="temp.releaseDate"
             type="date"
+            value-format="yyyy-MM-dd"
             placeholder="請選擇公告日期"
           >
           </el-date-picker>

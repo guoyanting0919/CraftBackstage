@@ -10,10 +10,6 @@
             <i class="iconfont icon-xinzeng"></i>
             新增
           </el-button>
-          <el-button type="danger" size="mini" plain @click="handleDel">
-            <i class="iconfont icon-garbage"></i>
-            刪除
-          </el-button>
         </div>
       </div>
     </sticky>
@@ -43,73 +39,25 @@
                   <i class="el-icon-wind-power">設為封面</i>
                 </a>
                 <p class="m-0" v-else>目前封面</p>
-                <el-button
-                  size="mini"
-                  type="warning"
-                  @click="handleEdit(item)"
-                  plain
-                >
-                  編輯
-                </el-button>
+                <div>
+                  <el-button
+                    size="mini"
+                    type="warning"
+                    @click="handleEdit(item)"
+                    plain
+                  >
+                    編輯
+                  </el-button>
+                  <span
+                    class="iconfont icon-garbage featuresBox__del ml-10 font-s-18"
+                    @click="handleDel(item)"
+                  ></span>
+                </div>
               </div>
             </el-card>
           </el-col>
         </el-row>
       </div>
-
-      <!-- <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
-          <el-table-column min-width="100px" :label="'圖片'">
-            <template slot-scope="scope">
-              <img :src="scope.row.pic" alt="" width="150px" />
-            </template>
-          </el-table-column>
-          <el-table-column min-width="100px" :label="'標題'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.title }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="30px" :label="'排序'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.sort }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column property="setting" label="操作" width="220">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-              >
-                編輯
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
-      </div> -->
     </div>
 
     <!-- modal -->
@@ -163,9 +111,7 @@
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
-        </strong>
+        <strong class="font-s-18">確定要刪除嗎？ </strong>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="delModal = false">取消</el-button>
@@ -217,7 +163,6 @@ export default {
       openModal: false,
       delModal: false,
       selectListId: "",
-      selectLIstCount: "",
     };
   },
   methods: {
@@ -227,10 +172,6 @@ export default {
       departmentAlbemPic.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
       });
-    },
-    handleSelectionChange(data) {
-      this.selectListId = data.map((res) => res.id);
-      this.selectLIstCount = data.length;
     },
     handleAdd() {
       if (this.$refs.imageUpload) {
@@ -251,8 +192,9 @@ export default {
       this.imgInfo = {};
       this.openModal = true;
     },
-    handleDel() {
+    handleDel(data) {
       this.delModal = true;
+      this.selectListId = [data.id];
     },
     customUpload(file) {
       const vm = this;
@@ -393,6 +335,10 @@ export default {
     border-bottom: 1px solid #c9b175;
   }
   &__goPrev {
+    cursor: pointer;
+  }
+  &__del {
+    color: #d63737;
     cursor: pointer;
   }
 }

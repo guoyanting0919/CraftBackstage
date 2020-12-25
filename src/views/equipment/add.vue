@@ -10,10 +10,6 @@
             <i class="iconfont icon-xinzeng"></i>
             新增
           </el-button>
-          <el-button type="danger" size="mini" plain @click="handleDel">
-            <i class="iconfont icon-garbage"></i>
-            刪除
-          </el-button>
         </div>
       </div>
     </sticky>
@@ -40,14 +36,20 @@
                   <i class="el-icon-wind-power">設為封面</i>
                 </a>
                 <p class="m-0" v-else>目前封面</p>
-                <el-button
-                  size="mini"
-                  type="warning"
-                  @click="handleEdit(item)"
-                  plain
-                >
-                  編輯
-                </el-button>
+                <div>
+                  <el-button
+                    size="mini"
+                    type="warning"
+                    @click="handleEdit(item)"
+                    plain
+                  >
+                    編輯
+                  </el-button>
+                  <span
+                    class="iconfont icon-garbage featuresBox__del ml-10 font-s-18"
+                    @click="handleDel(item)"
+                  ></span>
+                </div>
               </div>
             </el-card>
           </el-col>
@@ -98,7 +100,7 @@
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
         <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+          >確定要刪除嗎？
         </strong>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -146,7 +148,6 @@ export default {
       openModal: false,
       delModal: false,
       selectListId: "",
-      selectLIstCount: "",
     };
   },
   methods: {
@@ -162,10 +163,6 @@ export default {
         vm.list = res.data;
         vm.total = res.count;
       });
-    },
-    handleSelectionChange(data) {
-      this.selectListId = data.map((res) => res.id);
-      this.selectLIstCount = data.length;
     },
     handleAdd() {
       if (this.$refs.imageUpload) {
@@ -186,8 +183,9 @@ export default {
       this.modalTitle = "編輯";
       this.openModal = true;
     },
-    handleDel() {
+    handleDel(data) {
       this.delModal = true;
+      this.selectListId = [data.id];
     },
     customUpload(file) {
       const vm = this;
@@ -321,9 +319,9 @@ export default {
   &__goPrev {
     cursor: pointer;
   }
-}
-
-.picCard {
-  display: flex;
+  &__del {
+    color: #d63737;
+    cursor: pointer;
+  }
 }
 </style>
