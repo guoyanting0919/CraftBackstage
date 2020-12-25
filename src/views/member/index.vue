@@ -160,6 +160,18 @@
             placeholder="請輸入聯絡電話"
           ></el-input>
         </el-form-item>
+        <el-form-item size="small" :label="'上班時間'">
+          <el-input
+            v-model="temp.officeHour"
+            placeholder="請輸入上班時間"
+          ></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'傳真號碼'">
+          <el-input v-model="temp.fax" placeholder="請輸入傳真號碼"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'地址'">
+          <el-input v-model="temp.addr" placeholder="請輸入地址"></el-input>
+        </el-form-item>
         <el-form-item size="small" :label="'類別'" prop="memberTypeId">
           <el-select
             v-model="temp.memberTypeId"
