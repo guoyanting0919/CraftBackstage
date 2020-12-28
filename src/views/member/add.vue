@@ -1,0 +1,476 @@
+<template>
+  <div class="flex-column">
+    <sticky :className="'sub-navbar'">
+      <div class="featuresBox">
+        <div class="mx-16 featuresBox__goPrev">
+          <i class="el-icon-back" @click="goPrev"></i>
+        </div>
+        <div class="filter-container">
+          <el-button type="primary" size="mini" plain @click="handleAdd">
+            <i class="iconfont icon-xinzeng"></i>
+            新增
+          </el-button>
+          <el-button type="danger" size="mini" plain @click="handleDel">
+            <i class="iconfont icon-garbage"></i>
+            刪除
+          </el-button>
+        </div>
+      </div>
+    </sticky>
+    <div class="app-container flex-item">
+      <Title title="新增成員相關資料"></Title>
+      <div class="bg-white" style="height: calc(100% - 50px)">
+        <el-table
+          ref="mainTable"
+          :data="list"
+          v-loading="listLoading"
+          border
+          fit
+          highlight-current-row
+          style="width: 100%"
+          height="calc(100% - 52px)"
+          @row-click="rowClick"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column
+            align="center"
+            type="selection"
+            width="55"
+          ></el-table-column>
+          <el-table-column min-width="80px" :label="'標題'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.title }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="80px" :label="'年度'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.year }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="80px" :label="'參與人'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.joinMember }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="80px" :label="'擔任之工作'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.jobTitle }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="250px" :label="'內容'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.contents }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="150px" :label="'連結'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.links }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="100px" :label="'開始日期'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.startDate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="80px" :label="'類別'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.dataTypeName }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="50px" :label="'排序'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.sort }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column property="setting" label="操作" width="220">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="warning"
+                @click="handleEdit(scope.row)"
+              >
+                編輯
+              </el-button>
+              <el-button
+                size="mini"
+                type="info"
+                @click="addImage(scope.row.id)"
+              >
+                新增相片
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <pagination
+          v-show="total > 0"
+          :total="total"
+          :page.sync="listQuery.page"
+          :limit.sync="listQuery.limit"
+          @pagination="handleCurrentChange"
+        />
+      </div>
+    </div>
+
+    <!-- modal -->
+    <!-- add -->
+    <el-dialog :title="modalTitle" :visible.sync="openModal" width="50%">
+      <el-form
+        :rules="rules"
+        ref="dataForm"
+        :model="temp"
+        label-position="right"
+        label-width="100px"
+      >
+        <el-form-item size="small" :label="'類別'" prop="dataTypeId">
+          <el-select
+            v-model="temp.dataTypeId"
+            class="fw"
+            placeholder="請選擇類別"
+            no-match-text="暫無數據"
+            @change="getTypeName"
+          >
+            <el-option
+              v-for="item in typeList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.dtValue"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item size="small" :label="'標題'" prop="title">
+          <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'內容'" prop="contents">
+          <vue-editor
+            v-model="temp.contents"
+            v-if="activeVal == 'SYS_MEMBERDATA_RESEARCHPUBLIC'"
+          />
+          <el-input
+            type="textarea"
+            v-model="temp.contents"
+            :autosize="{ minRows: 2 }"
+            placeholder="請輸入內容"
+            v-else
+          ></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'年度'" prop="year">
+          <el-date-picker
+            class="fw"
+            v-model="temp.year"
+            type="year"
+            value-format="yyyy"
+            placeholder="請選擇年度"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item size="small" :label="'參與人'" prop="joinMember">
+          <el-input
+            v-model="temp.joinMember"
+            placeholder="請輸入參與人"
+          ></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'擔任之工作'" prop="jobTitle">
+          <el-input
+            v-model="temp.jobTitle"
+            placeholder="請輸入擔任之工作"
+          ></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'mechanismName'" prop="mechanismName">
+          <el-input
+            v-model="temp.mechanismName"
+            placeholder="請輸入mechanismName"
+          ></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'連結'" prop="links">
+          <el-input v-model="temp.links" placeholder="請輸入連結"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'開始時間'" prop="startDate">
+          <el-date-picker
+            class="fw"
+            v-model="temp.startDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="請選擇日期"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item size="small" :label="'結束時間'" prop="endDate">
+          <el-date-picker
+            class="fw"
+            v-model="temp.endDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="請選擇日期"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item size="small" :label="'排序'">
+          <el-input
+            v-model="temp.sort"
+            placeholder="請輸入排序（預設：999）"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="openModal = false">取消</el-button>
+        <el-button
+          type="primary"
+          @click="addMemberData"
+          v-if="modalTitle == '新增'"
+        >
+          確認
+        </el-button>
+        <el-button type="primary" @click="editMemberData" v-else
+          >確認</el-button
+        >
+      </span>
+    </el-dialog>
+
+    <!-- delete -->
+    <el-dialog title="刪除" :visible.sync="delModal" width="20%">
+      <div class="fw">
+        <strong class="font-s-18"
+          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        </strong>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="delModal = false">取消</el-button>
+        <el-button type="primary" @click="delMemberData">確認</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import Sticky from "@/components/Sticky";
+import Title from "@/components/ConsoleTableTitle";
+import Pagination from "@/components/Pagination";
+
+import * as departmentMemberDatas from "@/api/departmentMemberDatas";
+import * as categorys from "@/api/categorys";
+
+export default {
+  name: "award",
+  components: { Sticky, Title, Pagination },
+  data() {
+    return {
+      list: [], // 菜單列表
+      typeList: [],
+      total: 10,
+      activeVal: "",
+      listLoading: false,
+      listQuery: {
+        MemberId: this.$route.params.id,
+        DataTypeId: "",
+        page: 1,
+        limit: 20,
+        key: undefined,
+      },
+      temp: {
+        id: "",
+        memberId: "",
+        dataTypeId: "",
+        dataTypeName: "",
+        year: "",
+        title: "",
+        contents: "",
+        joinMember: "",
+        jobTitle: "",
+        startDate: "",
+        endDate: "",
+        mechanismName: "",
+        annexFile: "",
+        links: "",
+        remark: "",
+        sort: "",
+      },
+      modalTitle: "",
+      openModal: false,
+      delModal: false,
+      selectLIstId: "",
+      selectLIstCount: "",
+      rules: {
+        title: [
+          {
+            required: true,
+            message: "內容不能為空",
+            trigger: "blur",
+          },
+        ],
+        startDate: [
+          {
+            required: true,
+            message: "開始日期不能為空",
+            trigger: "blur",
+          },
+        ],
+        dataTypeId: [
+          {
+            required: true,
+            message: "類別不能為空",
+            trigger: "blur",
+          },
+        ],
+      },
+    };
+  },
+  methods: {
+    /* 獲取成員資料 */
+    getList() {
+      const vm = this;
+      departmentMemberDatas.getList(vm.listQuery).then((res) => {
+        vm.list = res.data;
+        vm.total = res.count;
+      });
+    },
+    getType() {
+      const vm = this;
+      let params = {
+        TypeId: "SYS_MEMBERDATA",
+        limit: 999,
+      };
+      categorys.getList(params).then((res) => {
+        vm.typeList = res.data;
+      });
+    },
+    rowClick() {},
+    handleAdd() {
+      this.temp = {};
+      this.temp.sort = 999;
+      this.modalTitle = "新增";
+      this.openModal = true;
+    },
+    handleEdit(data) {
+      departmentMemberDatas
+        .getDepartmentMemberDatas({ id: data.id })
+        .then((res) => {
+          this.temp = Object.assign({}, res.result);
+        });
+      this.modalTitle = "編輯";
+      this.openModal = true;
+    },
+    handleDel() {
+      if (this.selectLIstCount > 0) {
+        this.delModal = true;
+      } else {
+        this.$notify({
+          title: "錯誤",
+          message: "請先選擇欲刪除之項目！",
+          type: "error",
+          duration: 2000,
+        });
+      }
+    },
+    addImage(albumId) {
+      this.$router.push("/record/add/" + albumId);
+    },
+    handleSelectionChange(data) {
+      this.selectListId = data.map((res) => res.id);
+      this.selectLIstCount = data.length;
+    },
+    handleCurrentChange() {},
+    getTypeName(typeId) {
+      const vm = this;
+      console.log(typeId);
+      vm.activeVal = typeId;
+      vm.typeList.filter((item) => {
+        if (typeId === item.dtValue) {
+          vm.temp.dataTypeName = item.name;
+        }
+      });
+    },
+    addMemberData() {
+      const vm = this;
+      vm.temp.memberId = this.$route.params.id;
+      vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
+      console.log(vm.temp);
+      vm.$refs["dataForm"].validate((valid) => {
+        if (valid) {
+          departmentMemberDatas
+            .addDepartmentMemberDatas(vm.temp)
+            .then((res) => {
+              if (res.code === 200) {
+                vm.$notify({
+                  title: "成功",
+                  message: "新增成功",
+                  type: "success",
+                  duration: 2000,
+                });
+                this.openModal = false;
+                this.getList();
+              }
+            });
+        }
+      });
+    },
+    editMemberData() {
+      const vm = this;
+      vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
+      vm.$refs["dataForm"].validate((valid) => {
+        if (valid) {
+          console.log(vm.temp);
+          departmentMemberDatas
+            .updateDepartmentMemberDatas(vm.temp)
+            .then((res) => {
+              if (res.code === 200) {
+                vm.$notify({
+                  title: "成功",
+                  message: "修改成功",
+                  type: "success",
+                  duration: 2000,
+                });
+                this.openModal = false;
+                this.getList();
+              }
+            });
+        }
+      });
+    },
+    delMemberData() {
+      const vm = this;
+      departmentMemberDatas
+        .delDepartmentMemberDatas(vm.selectListId)
+        .then((res) => {
+          if (res.code === 200) {
+            vm.$notify({
+              title: "成功",
+              message: "刪除成功",
+              type: "success",
+              duration: 2000,
+            });
+            this.delModal = false;
+            this.getList();
+          }
+        });
+    },
+    goPrev() {
+      this.$router.push("/member/index");
+    },
+  },
+  mounted() {
+    this.getList();
+    this.getType();
+  },
+};
+</script>
+
+<style lang="scss">
+.featuresBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  a {
+    color: #c9b175;
+    border-bottom: 1px solid #c9b175;
+  }
+  &__goPrev {
+    cursor: pointer;
+  }
+  &__del {
+    color: #d63737;
+    cursor: pointer;
+  }
+}
+</style>

@@ -97,8 +97,16 @@
                 type="warning"
                 @click="handleEdit(scope.row)"
                 v-if="hasButton('edit')"
-                >編輯</el-button
               >
+                編輯
+              </el-button>
+              <el-button
+                size="mini"
+                type="info"
+                @click="addMemberDatas(scope.row.id)"
+              >
+                新增相關資料
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -474,7 +482,7 @@ export default {
           console.log({ error });
         });
     },
-    addContent(id) {
+    addMemberDatas(id) {
       this.$router.push("/member/add/" + id);
     },
     filterType(val) {
@@ -495,6 +503,3 @@ export default {
   },
 };
 </script>
-
-<style>
-</style>

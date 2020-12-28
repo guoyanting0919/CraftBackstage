@@ -106,10 +106,22 @@
           ></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'著作人'" prop="author">
-          <el-input
-            v-model="temp.author"
-            placeholder="請輸入著作人姓名"
-          ></el-input>
+          <el-select
+            class="fw"
+            v-model="temp.title"
+            filterable
+            clearable
+            placeholder="請選擇或輸入著作人"
+            @change="getMember"
+          >
+            <el-option
+              v-for="item in memberList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
 
@@ -144,6 +156,7 @@ import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
 import * as departmentTeachs from "@/api/departmentTeachs";
+import * as member from "@/api/member";
 
 export default {
   name: "award",
@@ -153,10 +166,17 @@ export default {
       /* 權限按鈕 */
       buttons: [],
       list: [], // 菜單列表
+      memberList: [],
       total: 10,
       listLoading: false,
       listQuery: {
         teachTypeId: "SYS_TEACH_RESEARCHPUBLIC",
+        page: 1,
+        limit: 20,
+        key: undefined,
+      },
+      memberListQuery: {
+        MemberTypeId: "",
         page: 1,
         limit: 20,
         key: undefined,
@@ -231,6 +251,13 @@ export default {
       });
     },
 
+    getMembers() {
+      const vm = this;
+      member.getList(vm.memberListQuery).then((res) => {
+        vm.memberList = res.data;
+      });
+    },
+
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
@@ -270,6 +297,14 @@ export default {
       this.selectLIstCount = data.length;
     },
     handleCurrentChange() {},
+    getMember(val) {
+      if (val) {
+        let filterMember = this.memberList.filter((res) => {
+          return res.id === val;
+        })[0];
+        this.temp.author = filterMember.name;
+      }
+    },
     addAward() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
@@ -327,6 +362,7 @@ export default {
   mounted() {
     this.getButtons();
     this.getList();
+    this.getMembers();
   },
 };
 </script>

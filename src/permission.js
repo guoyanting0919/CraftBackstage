@@ -24,6 +24,10 @@ let routerMappingList = [
     path: "/equipment/index",
     title: "系所簡介及課程 / 教學設備與空間",
   },
+  {
+    path: "/member/index",
+    title: "系所成員",
+  },
 ];
 let elementMappingList = ["add", "edit", "detail", "check"];
 

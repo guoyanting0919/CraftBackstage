@@ -22,6 +22,9 @@ import VueSweetalert2 from "vue-sweetalert2";
 
 import VueContextMenu from "vue-contextmenu";
 
+/* Vue2Editor */
+import Vue2Editor from "vue2-editor";
+
 /* s */
 import "@/styles/index.scss";
 
@@ -46,6 +49,7 @@ import "../src/assets/all.scss";
 Vue.use(ElementUI, { locale });
 Vue.use(VueSweetalert2);
 Vue.use(VueContextMenu);
+Vue.use(Vue2Editor);
 Vue.use(VCharts);
 
 const alertT = Vue.prototype.$swal.mixin({
