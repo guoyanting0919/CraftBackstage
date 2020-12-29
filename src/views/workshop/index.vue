@@ -147,6 +147,13 @@ export default {
             trigger: "blur",
           },
         ],
+        pic: [
+          {
+            required: true,
+            message: "圖片不能為空",
+            trigger: "blur",
+          },
+        ],
       },
       imgInfo: {},
       modalTitle: "",

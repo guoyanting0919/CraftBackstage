@@ -31,7 +31,12 @@
           ></el-table-column>
           <el-table-column min-width="100px" :label="'公告日期'">
             <template slot-scope="scope">
-              <span>{{ scope.row.releaseDate }}</span>
+              <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="150px" :label="'圖片'">
+            <template slot-scope="scope">
+              <img :src="scope.row.pics" alt="" width="150px" />
             </template>
           </el-table-column>
           <el-table-column min-width="200px" :label="'標題'">
@@ -39,7 +44,7 @@
               <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="300px" :label="'內容'">
+          <el-table-column min-width="400px" :label="'內容'">
             <template slot-scope="scope">
               <span>{{ scope.row.contents }}</span>
             </template>
@@ -68,7 +73,7 @@
 
     <!-- modal -->
     <!-- add -->
-    <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
+    <el-dialog :title="modalTitle" :visible.sync="openModal" width="50%">
       <el-form
         :rules="rules"
         ref="dataForm"
@@ -90,12 +95,27 @@
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'內容'" prop="contents">
-          <el-input
+          <vue-editor v-model="temp.contents" />
+          <!-- <el-input
             type="textarea"
             v-model="temp.contents"
             :autosize="{ minRows: 2 }"
             placeholder="請輸入內容"
-          ></el-input>
+          ></el-input> -->
+        </el-form-item>
+        <el-form-item size="small" :label="'圖片'" prop="pic">
+          <el-upload
+            ref="imageUpload"
+            :show-file-list="false"
+            accept=".png,.jpg,.jpeg,.svg"
+            class="upload-demo"
+            action=""
+            :http-request="customUpload"
+            :limit="999"
+          >
+            <el-button size="small" type="primary">上傳</el-button>
+            <p class="m-0">{{ imgInfo.fileName }}</p>
+          </el-upload>
         </el-form-item>
       </el-form>
 
@@ -124,6 +144,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
@@ -156,6 +177,7 @@ export default {
         titleType: "",
         author: "",
         contents: "",
+        pics: "",
         annexFile: "",
       },
       modalTitle: "",
@@ -186,6 +208,7 @@ export default {
           },
         ],
       },
+      imgInfo: {},
     };
   },
   methods: {
@@ -217,6 +240,7 @@ export default {
             teachTypeId: "SYS_TEACH_COMPETITION",
             teachTypeName: "競賽得獎",
           };
+          this.imgInfo = {};
           this.modalTitle = "新增";
           this.openModal = true;
           break;
@@ -242,6 +266,7 @@ export default {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
+      this.imgInfo = {};
       this.openModal = true;
     },
     handleSelectionChange(data) {
@@ -249,6 +274,22 @@ export default {
       this.selectLIstCount = data.length;
     },
     handleCurrentChange() {},
+    customUpload(file) {
+      const vm = this;
+      let formData = new FormData();
+      formData.append("files", file.file, file.file.name);
+      axios
+        .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
+        .then((response) => {
+          console.log(response.data.result[0]);
+          vm.imgInfo = response.data.result[0];
+          vm.temp.pics = "http://craft.unitgo.tw/" + vm.imgInfo.filePath;
+        })
+        .catch((error) => {
+          console.log({ error });
+        });
+    },
+
     addAward() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {

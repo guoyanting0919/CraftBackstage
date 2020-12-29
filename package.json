@@ -34,6 +34,7 @@
     "vue-json-excel": "^0.2.98",
     "vue-layer": "^0.9.14",
     "vue-loading-overlay": "^3.3.2",
+    "vue-moment": "^4.1.0",
     "vue-multiselect": "^2.1.6",
     "vue-router": "3.0.1",
     "vue-sweetalert2": "^3.0.6",

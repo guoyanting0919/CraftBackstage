@@ -35,19 +35,24 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="160px" :label="'標題'">
+          <el-table-column min-width="80px" :label="'公告日期'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="150px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="240px" :label="'內容'">
+          <el-table-column min-width="100px" :label="'副標題'">
             <template slot-scope="scope">
-              <span>{{ scope.row.contents }}</span>
+              <span>{{ scope.row.summury }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'公告日期'">
+          <el-table-column min-width="250px" :label="'內容'">
             <template slot-scope="scope">
-              <span>{{ scope.row.releaseDate }}</span>
+              <span>{{ scope.row.contents }}</span>
             </template>
           </el-table-column>
           <el-table-column min-width="50px" :label="'類別'">
@@ -84,7 +89,7 @@
 
     <!-- modal -->
     <!-- add -->
-    <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
+    <el-dialog :title="modalTitle" :visible.sync="openModal" width="60%">
       <el-form
         :rules="rules"
         ref="dataForm"
@@ -95,14 +100,14 @@
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
         </el-form-item>
-        <el-form-item size="small" :label="'內容'" prop="contents">
+        <el-form-item size="small" :label="'副標題'">
           <el-input
-            type="textarea"
-            v-model="temp.contents"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入內容"
-          >
-          </el-input>
+            v-model="temp.summury"
+            placeholder="請輸入副標題"
+          ></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'內容'" prop="contents">
+          <vue-editor v-model="temp.contents" />
         </el-form-item>
         <el-form-item size="small" :label="'類別'" prop="newsTypeId">
           <el-select
@@ -194,6 +199,7 @@ export default {
         newsTypeName: "",
         releaseDate: "",
         title: "",
+        summury: "",
         contents: "",
         attachedFile: "",
         sort: "",

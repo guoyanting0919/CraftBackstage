@@ -31,7 +31,7 @@
           ></el-table-column>
           <el-table-column min-width="100px" :label="'公告日期'">
             <template slot-scope="scope">
-              <span>{{ scope.row.releaseDate }}</span>
+              <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
             </template>
           </el-table-column>
 

@@ -47,6 +47,7 @@ import "@/assets/iconfont/iconfont.js";
 import "../src/assets/all.scss";
 
 Vue.use(ElementUI, { locale });
+Vue.use(require('vue-moment'));
 Vue.use(VueSweetalert2);
 Vue.use(VueContextMenu);
 Vue.use(Vue2Editor);
