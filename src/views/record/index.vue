@@ -27,7 +27,7 @@
           <el-table-column
             align="center"
             type="selection"
-            width="55"
+            width="60"
           ></el-table-column>
           <el-table-column min-width="100px" :label="'公告日期'">
             <template slot-scope="scope">
