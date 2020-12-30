@@ -2,12 +2,22 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <el-input
-          style="width: 200px; margin-right: 0.5rem"
-          size="mini"
-          clearable
-          placeholder="請輸入關鍵字"
-        ></el-input>
+        <el-select
+          v-model="getNewsType"
+          class="mr-20"
+          placeholder="請選擇類別"
+          no-match-text="暫無數據"
+          @change="filterType"
+        >
+          <el-option value="all" label="全部類別"></el-option>
+          <el-option
+            v-for="item in typeList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.dtValue"
+          >
+          </el-option>
+        </el-select>
         <permission-btn
           size="mini"
           moduleName="modulemanager"
@@ -40,21 +50,21 @@
               <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="150px" :label="'標題'">
+          <el-table-column min-width="200px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="100px" :label="'副標題'">
+          <el-table-column min-width="150px" :label="'副標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.summury }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="250px" :label="'內容'">
+          <!-- <el-table-column min-width="250px" :label="'內容'">
             <template slot-scope="scope">
               <span>{{ scope.row.contents }}</span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column min-width="50px" :label="'類別'">
             <template slot-scope="scope">
               <span>{{ scope.row.newsTypeName }}</span>
@@ -186,6 +196,7 @@ export default {
       buttons: [],
       list: [], // 菜單列表
       total: 10,
+      getNewsType: "all",
       listLoading: false,
       listQuery: {
         page: 1,
@@ -381,6 +392,15 @@ export default {
           this.getList();
         }
       });
+    },
+    filterType(val) {
+      if (val !== "all") {
+        this.listQuery.NewsTypeId = val;
+        this.getList();
+      } else {
+        this.listQuery.NewsTypeId = "";
+        this.getList();
+      }
     },
   },
   mounted() {

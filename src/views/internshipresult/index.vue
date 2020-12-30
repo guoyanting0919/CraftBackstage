@@ -35,9 +35,9 @@
             </template>
           </el-table-column>
 
-          <el-table-column min-width="100px" :label="'標題'" prop="title">
+          <el-table-column min-width="200px" :label="'標題'" prop="title">
           </el-table-column>
-          <el-table-column min-width="200px" :label="'內容'">
+          <el-table-column min-width="300px" :label="'內容'">
             <template slot-scope="scope">
               <span>{{ scope.row.contents }}</span>
             </template>

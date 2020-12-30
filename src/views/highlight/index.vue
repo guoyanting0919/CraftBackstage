@@ -34,7 +34,7 @@
               <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="150px" :label="'標題'">
+          <el-table-column min-width="200px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
             </template>

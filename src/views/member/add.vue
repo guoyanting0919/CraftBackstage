@@ -6,6 +6,22 @@
           <i class="el-icon-back" @click="goPrev"></i>
         </div>
         <div class="filter-container">
+          <el-select
+            v-model="getMemberType"
+            class="mr-20"
+            placeholder="請選擇類別"
+            no-match-text="暫無數據"
+            @change="filterType"
+          >
+            <el-option value="all" label="全部類別"></el-option>
+            <el-option
+              v-for="item in typeList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.dtValue"
+            >
+            </el-option>
+          </el-select>
           <el-button type="primary" size="mini" plain @click="handleAdd">
             <i class="iconfont icon-xinzeng"></i>
             新增
@@ -37,7 +53,7 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="80px" :label="'標題'">
+          <el-table-column min-width="300px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
             </template>
@@ -52,14 +68,9 @@
               <span>{{ scope.row.joinMember }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'擔任之工作'">
+          <el-table-column min-width="100px" :label="'擔任之工作'">
             <template slot-scope="scope">
               <span>{{ scope.row.jobTitle }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="250px" :label="'內容'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.contents }}</span>
             </template>
           </el-table-column>
           <el-table-column min-width="150px" :label="'連結'">
@@ -69,7 +80,7 @@
           </el-table-column>
           <el-table-column min-width="100px" :label="'開始日期'">
             <template slot-scope="scope">
-              <span>{{ scope.row.startDate }}</span>
+              <span>{{ scope.row.startDate | moment("YYYY-MM-DD") }}</span>
             </template>
           </el-table-column>
           <el-table-column min-width="80px" :label="'類別'">
@@ -114,104 +125,134 @@
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="50%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
-        <el-form-item size="small" :label="'類別'" prop="dataTypeId">
-          <el-select
-            v-model="temp.dataTypeId"
-            class="fw"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="getTypeName"
+      <el-tabs v-model="temp.dataTypeId" @tab-click="handleClick">
+        <el-tab-pane
+          :label="item.name"
+          :name="item.dtValue"
+          v-for="item in typeList"
+          :key="item.id"
+        >
+          <el-form
+            v-if="temp.dataTypeId"
+            :rules="rules"
+            :ref="`dataForm${item.dtValue}`"
+            :model="temp"
+            label-position="right"
+            label-width="100px"
           >
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
+            <!-- title -->
+            <el-form-item size="small" :label="'標題'" prop="title">
+              <el-input
+                v-model="temp.title"
+                placeholder="請輸入標題"
+              ></el-input>
+            </el-form-item>
+            <!-- contents -->
+            <el-form-item
+              size="small"
+              :label="'內容'"
+              prop="contents"
+              v-if="check('內容')"
             >
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item size="small" :label="'標題'" prop="title">
-          <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'內容'" prop="contents">
-          <vue-editor
-            v-model="temp.contents"
-            v-if="activeVal == 'SYS_MEMBERDATA_RESEARCHPUBLIC'"
-          />
-          <el-input
-            type="textarea"
-            v-model="temp.contents"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入內容"
-            v-else
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'年度'" prop="year">
-          <el-date-picker
-            class="fw"
-            v-model="temp.year"
-            type="year"
-            value-format="yyyy"
-            placeholder="請選擇年度"
-          >
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item size="small" :label="'參與人'" prop="joinMember">
-          <el-input
-            v-model="temp.joinMember"
-            placeholder="請輸入參與人"
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'擔任之工作'" prop="jobTitle">
-          <el-input
-            v-model="temp.jobTitle"
-            placeholder="請輸入擔任之工作"
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'mechanismName'" prop="mechanismName">
-          <el-input
-            v-model="temp.mechanismName"
-            placeholder="請輸入mechanismName"
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'連結'" prop="links">
-          <el-input v-model="temp.links" placeholder="請輸入連結"></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'開始時間'" prop="startDate">
-          <el-date-picker
-            class="fw"
-            v-model="temp.startDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="請選擇日期"
-          >
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item size="small" :label="'結束時間'" prop="endDate">
-          <el-date-picker
-            class="fw"
-            v-model="temp.endDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="請選擇日期"
-          >
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item size="small" :label="'排序'">
-          <el-input
-            v-model="temp.sort"
-            placeholder="請輸入排序（預設：999）"
-          ></el-input>
-        </el-form-item>
-      </el-form>
+              <vue-editor
+                v-model="temp.contents"
+                v-if="temp.dataTypeId == 'SYS_MEMBERDATA_RESEARCHPUBLIC'"
+              />
+              <el-input
+                type="textarea"
+                v-model="temp.contents"
+                :autosize="{ minRows: 2 }"
+                placeholder="請輸入內容"
+                v-else
+              ></el-input>
+            </el-form-item>
+            <!-- year -->
+            <el-form-item
+              size="small"
+              :label="'年度'"
+              v-if="check('年度')"
+            >
+              <el-date-picker
+                class="fw"
+                v-model="temp.year"
+                type="year"
+                value-format="yyyy"
+                placeholder="請選擇年度"
+              >
+              </el-date-picker>
+            </el-form-item>
+            <!-- joinMember -->
+            <el-form-item
+              size="small"
+              :label="'參與人'"
+              v-if="check('參與人')"
+            >
+              <el-input
+                v-model="temp.joinMember"
+                placeholder="請輸入參與人"
+              ></el-input>
+            </el-form-item>
+            <!-- jobTitle -->
+            <el-form-item
+              size="small"
+              :label="'擔任之工作'"
+              v-if="check('職稱')"
+            >
+              <el-input
+                v-model="temp.jobTitle"
+                placeholder="請輸入擔任之工作"
+              ></el-input>
+            </el-form-item>
+            <!-- mechanismName -->
+            <el-form-item
+              size="small"
+              :label="specialName()"
+              v-if="check('機構')"
+            >
+              <el-input
+                v-model="temp.mechanismName"
+                :placeholder="'請輸入' + specialName()"
+              ></el-input>
+            </el-form-item>
+            <!-- startDate -->
+            <el-form-item size="small" :label="'開始時間'" prop="startDate">
+              <el-date-picker
+                class="fw"
+                v-model="temp.startDate"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="請選擇日期"
+              >
+              </el-date-picker>
+            </el-form-item>
+            <!-- endDate -->
+            <el-form-item size="small" :label="'結束時間'">
+              <el-date-picker
+                class="fw"
+                v-model="temp.endDate"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="請選擇日期"
+              >
+              </el-date-picker>
+            </el-form-item>
+            <!-- 備註 -->
+            <el-form-item size="small" :label="'備註'" v-if="check('備註')">
+              <el-input
+                v-model="temp.remark"
+                placeholder="請輸入備註"
+              ></el-input>
+            </el-form-item>
+            <!-- sort -->
+            <el-form-item size="small" :label="'排序'">
+              <el-input
+                v-model="temp.sort"
+                placeholder="請輸入排序（預設：999）"
+              ></el-input>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+      </el-tabs>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
@@ -259,7 +300,7 @@ export default {
       list: [], // 菜單列表
       typeList: [],
       total: 10,
-      activeVal: "",
+      getMemberType: "all",
       listLoading: false,
       listQuery: {
         MemberId: this.$route.params.id,
@@ -306,17 +347,59 @@ export default {
             trigger: "blur",
           },
         ],
-        dataTypeId: [
-          {
-            required: true,
-            message: "類別不能為空",
-            trigger: "blur",
-          },
+      },
+      mapping: {
+        // 內容     年度  參與人     職稱     機構           連結  備註
+        // contents year joinMember jobTitle mechanismName links remark
+        SYS_MEMBERDATA_RESEARCHPUBLIC: ["內容"],
+        // 計畫
+        SYS_MEMBERDATA_RESEARCPLAN: ["年度", "參與人", "職稱", "機構", "連結"],
+        // 產學
+        SYS_MEMBERDATA_INDUSTRYCOOPE: [
+          "年度",
+          "參與人",
+          "職稱",
+          "機構",
+          "連結",
+          "備註",
         ],
+        // 校內
+        SYS_MEMBERDATA_SCHOOLHONOR: ["年度", "機構"],
+        // 校外
+        SYS_MEMBERDATA_OFFCAMPUSHONOR: ["年度"],
+        // 學歷
+        SYS_MEMBERDATA_EDUCATION: ["機構", "系所", "職稱"],
+        // 經歷
+        SYS_MEMBERDATA_EXP: ["機構", "職稱"],
       },
     };
   },
+  computed: {
+    specialName() {
+      return () => {
+        if (
+          this.temp.dataTypeId == "SYS_MEMBERDATA_RESEARCPLAN" ||
+          this.temp.dataTypeId == "SYS_MEMBERDATA_INDUSTRYCOOPE"
+        ) {
+          return "補助機構";
+        } else if (
+          this.temp.dataTypeId == "SYS_MEMBERDATA_SCHOOLHONOR" ||
+          this.temp.dataTypeId == "SYS_MEMBERDATA_OFFCAMPUSHONOR"
+        ) {
+          return "頒獎中心";
+        } else if (this.temp.dataTypeId == "SYS_MEMBERDATA_EDUCATION") {
+          return "國別";
+        } else if (this.temp.dataTypeId == "SYS_MEMBERDATA_EXP") {
+          return "部門/系所";
+        }
+      };
+    },
+  },
   methods: {
+    //check
+    check(str) {
+      return this.mapping[this.temp.dataTypeId]?.includes(str);
+    },
     /* 獲取成員資料 */
     getList() {
       const vm = this;
@@ -335,10 +418,20 @@ export default {
         vm.typeList = res.data;
       });
     },
+    handleClick(tab, event) {
+      console.log(tab.name, event);
+      const vm = this;
+      vm.typeList.filter((item) => {
+        if (tab.name === item.dtValue) {
+          vm.temp.dataTypeName = item.name;
+        }
+      });
+    },
     rowClick() {},
     handleAdd() {
       this.temp = {};
       this.temp.sort = 999;
+      this.$set(this.temp, "dataTypeId", "SYS_MEMBERDATA_RESEARCHPUBLIC");
       this.modalTitle = "新增";
       this.openModal = true;
     },
@@ -371,22 +464,14 @@ export default {
       this.selectLIstCount = data.length;
     },
     handleCurrentChange() {},
-    getTypeName(typeId) {
-      const vm = this;
-      console.log(typeId);
-      vm.activeVal = typeId;
-      vm.typeList.filter((item) => {
-        if (typeId === item.dtValue) {
-          vm.temp.dataTypeName = item.name;
-        }
-      });
-    },
     addMemberData() {
       const vm = this;
       vm.temp.memberId = this.$route.params.id;
       vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-      console.log(vm.temp);
-      vm.$refs["dataForm"].validate((valid) => {
+      console.log( vm.$refs.dataForm,this.temp.dataTypeId);
+      const dom = `dataForm${this.temp.dataTypeId}`
+      
+      vm.$refs[dom][0].validate((valid) => {
         if (valid) {
           departmentMemberDatas
             .addDepartmentMemberDatas(vm.temp)
@@ -444,6 +529,15 @@ export default {
             this.getList();
           }
         });
+    },
+    filterType(val) {
+      if (val !== "all") {
+        this.listQuery.DataTypeId = val;
+        this.getList();
+      } else {
+        this.listQuery.DataTypeId = "";
+        this.getList();
+      }
     },
     goPrev() {
       this.$router.push("/member/index");

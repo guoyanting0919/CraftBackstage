@@ -4,7 +4,7 @@ function resolve(dir) {
 }
 
 module.exports = {
-  publicPath: "/dist/",
+  publicPath: "/NtuaCraftBack/",
   lintOnSave: process.env.NODE_ENV !== "production",
 
   /* 設定本機port */

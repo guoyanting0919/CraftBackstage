@@ -196,7 +196,7 @@ export default {
         .then((response) => {
           console.log(response.data.result[0]);
           vm.imgInfo = response.data.result[0];
-          vm.temp.links = "http://craft.unitgo.tw/" + vm.imgInfo.filePath;
+          vm.temp.links = "http://140.131.21.65/" + vm.imgInfo.filePath;
         })
         .catch((error) => {
           console.log({ error });
