@@ -418,8 +418,7 @@ export default {
         vm.typeList = res.data;
       });
     },
-    handleClick(tab, event) {
-      console.log(tab.name, event);
+    handleClick(tab) {
       const vm = this;
       vm.typeList.filter((item) => {
         if (tab.name === item.dtValue) {
@@ -468,7 +467,6 @@ export default {
       const vm = this;
       vm.temp.memberId = this.$route.params.id;
       vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-      console.log( vm.$refs.dataForm,this.temp.dataTypeId);
       const dom = `dataForm${this.temp.dataTypeId}`
       
       vm.$refs[dom][0].validate((valid) => {
@@ -495,7 +493,6 @@ export default {
       vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          console.log(vm.temp);
           departmentMemberDatas
             .updateDepartmentMemberDatas(vm.temp)
             .then((res) => {

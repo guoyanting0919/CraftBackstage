@@ -10,7 +10,7 @@
       </div>
     </sticky>
     <div class="app-container flex-item">
-      <Title title="研究發表管理"></Title>
+      <Title title="學制地圖管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table
           ref="mainTable"
@@ -29,24 +29,31 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="100px" :label="'公告日期'">
+          <el-table-column min-width="300" :label="'檔案連結'" align="center">
             <template slot-scope="scope">
-              <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="查看檔案"
+                placement="bottom"
+              >
+                <a
+                  :href="scope.row.fileLink"
+                  :download="scope.row.fileLink"
+                  target="_blank"
+                >
+                  <img
+                    src="@/assets/images/link.svg"
+                    alt="查看檔案"
+                    width="30px"
+                  />
+                </a>
+              </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'標籤類型'">
+          <el-table-column min-width="100" :label="'類別'">
             <template slot-scope="scope">
-              <span>{{ scope.row.titleType }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="300px" :label="'著作'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.contents }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column min-width="80px" :label="'著作人'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.author }}</span>
+              <span>{{ scope.row.typeName }}</span>
             </template>
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
@@ -81,57 +88,32 @@
         label-position="right"
         label-width="100px"
       >
-        <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
-          <el-date-picker
-            class="fw"
-            v-model="temp.releaseDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            :picker-options="disBeforeTime"
-            placeholder="請選擇日期"
+        <el-form-item size="small" :label="'檔案上傳'" prop="fileLink">
+          <el-upload
+            ref="imageUpload"
+            :show-file-list="false"
+            accept=""
+            class="upload-demo"
+            action=""
+            :http-request="customUpload"
+            :limit="999"
           >
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item size="small" :label="'標籤類型'" prop="titleType">
-          <el-input
-            v-model="temp.titleType"
-            placeholder="請輸入標籤類型"
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'著作'" prop="contents">
-          <el-input
-            type="textarea"
-            v-model="temp.contents"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入內容"
-          ></el-input>
-        </el-form-item>
-        <el-form-item size="small" :label="'著作人'" prop="author">
-          <el-select
-            class="fw"
-            v-model="temp.title"
-            filterable
-            clearable
-            placeholder="請選擇或輸入著作人"
-            @change="getMember"
-          >
-            <el-option
-              v-for="item in memberList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            >
-            </el-option>
-          </el-select>
+            <el-button size="small" type="primary">上傳</el-button>
+            <p class="m-0">{{ fileInfo.fileName }}</p>
+          </el-upload>
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button type="primary" @click="addAward" v-if="modalTitle == '新增'">
+        <el-button
+          type="primary"
+          @click="addEduMap"
+          v-if="modalTitle == '新增'"
+        >
           確認
         </el-button>
-        <el-button type="primary" @click="editAward" v-else>確認</el-button>
+        <el-button type="primary" @click="editEduMap" v-else>確認</el-button>
       </span>
     </el-dialog>
 
@@ -144,94 +126,65 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="delModal = false">取消</el-button>
-        <el-button type="primary" @click="delAward">確認</el-button>
+        <el-button type="primary" @click="delEduMap">確認</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
-import * as departmentTeachs from "@/api/departmentTeachs";
-import * as member from "@/api/member";
+import * as singleFiles from "@/api/singleFiles";
 
 export default {
-  name: "award",
+  name: "singleFiles",
   components: { Sticky, Title, permissionBtn, Pagination },
   data() {
     return {
       /* 權限按鈕 */
       buttons: [],
       list: [], // 菜單列表
-      memberList: [],
       total: 10,
       listLoading: false,
       listQuery: {
-        teachTypeId: "SYS_TEACH_RESEARCHPUBLIC",
-        page: 1,
-        limit: 20,
-        key: undefined,
-      },
-      memberListQuery: {
-        MemberTypeId: "",
+        TypeId: "SYS_SINGLEFILE_MAP",
         page: 1,
         limit: 20,
         key: undefined,
       },
       temp: {
         id: "",
-        teachTypeId: "",
-        teachTypeName: "",
-        releaseDate: "",
-        title: "",
-        titleType: "",
-        author: "",
-        contents: "",
-        annexFile: "",
+        typeId: "",
+        typeName: "",
+        fileName: "",
+        fileLink: "",
       },
       modalTitle: "",
       openModal: false,
       delModal: false,
       selectLIstId: "",
       selectLIstCount: "",
+      fileInfo: {},
       rules: {
-        releaseDate: [
+        fileName: [
           {
             required: true,
-            message: "公告日期不能為空",
+            message: "年度不能為空",
             trigger: "blur",
           },
         ],
-        titleType: [
+        typeId: [
           {
             required: true,
-            message: "標籤類型不能為空",
+            message: "類別不能為空",
             trigger: "blur",
           },
         ],
-        contents: [
-          {
-            required: true,
-            message: "著作不能為空",
-            trigger: "blur",
-          },
-        ],
-        author: [
-          {
-            required: true,
-            message: "著作人不能為空",
-            trigger: "blur",
-          },
-        ],
-      },
-      disBeforeTime: {
-        disabledDate(date) {
-          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
-        },
       },
     };
   },
@@ -248,31 +201,33 @@ export default {
       return this.buttons.includes(domId);
     },
 
-    /* 獲取成員資料 */
+    /* 獲取年度學分表資料 */
     getList() {
       const vm = this;
-      departmentTeachs.getList(vm.listQuery).then((res) => {
+      singleFiles.getList(vm.listQuery).then((res) => {
         vm.list = res.data;
         vm.total = res.count;
-      });
-    },
-
-    getMembers() {
-      const vm = this;
-      member.getList(vm.memberListQuery).then((res) => {
-        vm.memberList = res.data;
       });
     },
 
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
-          this.temp = {
-            teachTypeId: "SYS_TEACH_RESEARCHPUBLIC",
-            teachTypeName: "研究發表",
-          };
-          this.modalTitle = "新增";
-          this.openModal = true;
+          if (this.list.length > 0) {
+            this.$notify({
+              title: "錯誤",
+              message: "最多僅能新增一筆！",
+              type: "error",
+              duration: 2000,
+            });
+          } else {
+            this.temp = {};
+            this.temp.typeId = "SYS_SINGLEFILE_MAP";
+            this.temp.typeName = "學制地圖";
+            this.fileInfo = {};
+            this.modalTitle = "新增";
+            this.openModal = true;
+          }
           break;
         case "delete":
           if (this.selectLIstCount > 0) {
@@ -292,10 +247,11 @@ export default {
     },
     rowClick() {},
     handleEdit(data) {
-      departmentTeachs.getDepartmentTeachs({ id: data.id }).then((res) => {
+      singleFiles.getSingleFiles({ id: data.id }).then((res) => {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
+      this.fileInfo = {};
       this.openModal = true;
     },
     handleSelectionChange(data) {
@@ -303,19 +259,25 @@ export default {
       this.selectLIstCount = data.length;
     },
     handleCurrentChange() {},
-    getMember(val) {
-      if (val) {
-        let filterMember = this.memberList.filter((res) => {
-          return res.id === val;
-        })[0];
-        this.temp.author = filterMember.name;
-      }
+    customUpload(file) {
+      const vm = this;
+      let formData = new FormData();
+      formData.append("files", file.file, file.file.name);
+      axios
+        .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
+        .then((response) => {
+          vm.fileInfo = response.data.result[0];
+          vm.temp.fileLink = "http://140.131.21.65/" + vm.fileInfo.filePath;
+        })
+        .catch((error) => {
+          console.log({ error });
+        });
     },
-    addAward() {
+    addEduMap() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          departmentTeachs.addDepartmentTeachs(vm.temp).then((res) => {
+          singleFiles.addSingleFiles(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -330,11 +292,11 @@ export default {
         }
       });
     },
-    editAward() {
+    editEduMap() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          departmentTeachs.updateDepartmentTeachs(vm.temp).then((res) => {
+          singleFiles.updateSingleFiles(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -349,9 +311,9 @@ export default {
         }
       });
     },
-    delAward() {
+    delEduMap() {
       const vm = this;
-      departmentTeachs.delDepartmentTeachs(vm.selectListId).then((res) => {
+      singleFiles.delSingleFiles(vm.selectListId).then((res) => {
         if (res.code === 200) {
           vm.$notify({
             title: "成功",
@@ -368,7 +330,6 @@ export default {
   mounted() {
     this.getButtons();
     this.getList();
-    this.getMembers();
   },
 };
 </script>

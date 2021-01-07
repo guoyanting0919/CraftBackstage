@@ -210,7 +210,6 @@ export default {
     },
     addAlbumPic() {
       const vm = this;
-      console.log(vm.temp.pic);
       const addInfo = {
         id: "",
         title: vm.temp.title,
@@ -220,7 +219,6 @@ export default {
       };
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          console.log(addInfo);
           departmentTeachs.addDepartmentTeachs(addInfo).then((res) => {
             if (res.code === 200) {
               vm.$notify({
@@ -240,7 +238,6 @@ export default {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          console.log(vm.temp);
           vm.temp.contents = vm.temp.pic;
           departmentTeachs.updateDepartmentTeachs(vm.temp).then((res) => {
             if (res.code === 200) {

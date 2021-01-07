@@ -383,7 +383,6 @@ export default {
         if (valid) {
           vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
           workshopdatas.updateWorkShopDatas(vm.temp).then((res) => {
-            console.log(res);
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -414,7 +413,6 @@ export default {
       });
     },
     filterBlock(val) {
-      console.log(val);
       if (val !== "all") {
         this.listQuery.RoomTypeId = val;
         this.getList();
@@ -424,7 +422,6 @@ export default {
       }
     },
     filterType(val) {
-      console.log(val);
       if (val !== "all") {
         this.listQuery.DataTypeId = val;
         this.getList();

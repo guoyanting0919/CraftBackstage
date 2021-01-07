@@ -212,7 +212,6 @@ export default {
     },
     addAlbumPic() {
       const vm = this;
-      console.log(vm.temp.pic);
       const addInfo = {
         id: "",
         albumId: vm.$route.params.id,
@@ -223,7 +222,6 @@ export default {
       };
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          console.log(addInfo);
           departmentAlbemPic.addAlbumsPics(addInfo).then((res) => {
             if (res.code === 200) {
               vm.$notify({

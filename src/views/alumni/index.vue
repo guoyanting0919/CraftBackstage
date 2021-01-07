@@ -82,6 +82,7 @@
             v-model="temp.releaseDate"
             type="date"
             value-format="yyyy-MM-dd"
+            :picker-options="disBeforeTime"
             placeholder="請選擇公告日期"
           >
           </el-date-picker>
@@ -184,6 +185,11 @@ export default {
           },
         ],
       },
+      disBeforeTime: {
+        disabledDate(date) {
+          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+        },
+      },
     };
   },
   methods: {
@@ -268,7 +274,6 @@ export default {
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
           departmentAlumnis.updateAlumnis(vm.temp).then((res) => {
-            console.log(res);
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",

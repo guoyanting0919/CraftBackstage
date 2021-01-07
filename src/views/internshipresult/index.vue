@@ -66,7 +66,7 @@
 
     <!-- modal -->
     <!-- add -->
-    <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
+    <el-dialog :title="modalTitle" :visible.sync="openModal" width="60%">
       <el-form
         :rules="rules"
         ref="dataForm"
@@ -80,22 +80,34 @@
             v-model="temp.releaseDate"
             type="date"
             value-format="yyyy-MM-dd"
+            :picker-options="disBeforeTime"
             placeholder="請選擇日期"
           >
           </el-date-picker>
         </el-form-item>
-
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
         </el-form-item>
-
         <el-form-item size="small" :label="'內容'" prop="contents">
-          <el-input
-            type="textarea"
-            v-model="temp.contents"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入內容"
-          ></el-input>
+          <vue-editor v-model="temp.contents" />
+        </el-form-item>
+        <el-form-item size="small" :label="'檔案上傳'">
+          <el-upload
+            ref="imageUpload"
+            :show-file-list="false"
+            accept=""
+            class="upload-demo"
+            action=""
+            :http-request="customUpload"
+            :limit="999"
+          >
+            <el-button size="small" type="primary">上傳</el-button>
+          </el-upload>
+          <div class="fw flex-row">
+            <p class="m-0 pr-10" v-for="item in groupFile" :key="item.id">
+              {{ item.fileName }}
+            </p>
+          </div>
         </el-form-item>
       </el-form>
 
@@ -124,6 +136,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
@@ -161,6 +174,13 @@ export default {
       modalTitle: "",
       openModal: false,
       delModal: false,
+      fileInfo: {},
+      groupFile: [],
+      disBeforeTime: {
+        disabledDate(date) {
+          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+        },
+      },
       selectLIstId: "",
       selectLIstCount: "",
       rules: {
@@ -171,24 +191,17 @@ export default {
             trigger: "blur",
           },
         ],
-        titleType: [
+        title: [
           {
             required: true,
-            message: "標籤類型不能為空",
+            message: "標題不能為空",
             trigger: "blur",
           },
         ],
         contents: [
           {
             required: true,
-            message: "著作不能為空",
-            trigger: "blur",
-          },
-        ],
-        author: [
-          {
-            required: true,
-            message: "著作人不能為空",
+            message: "內容不能為空",
             trigger: "blur",
           },
         ],
@@ -220,9 +233,10 @@ export default {
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
-          this.temp = {
-            teachTypeId: "SYS_TEACH_4C",
-          };
+          this.temp = {};
+          this.temp.teachTypeId = "SYS_TEACH_4C";
+          this.temp.teachTypeName = "實習成果";
+          this.groupFile = [];
           this.modalTitle = "新增";
           this.openModal = true;
           break;
@@ -248,6 +262,7 @@ export default {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
+      this.groupFile = [];
       this.openModal = true;
     },
     handleSelectionChange(data) {
@@ -255,6 +270,26 @@ export default {
       this.selectLIstCount = data.length;
     },
     handleCurrentChange() {},
+    customUpload(file) {
+      const vm = this;
+      let formData = new FormData();
+      formData.append("files", file.file, file.file.name);
+      axios
+        .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
+        .then((response) => {
+          vm.fileInfo = response.data.result[0];
+          let getFile = {
+            id: vm.fileInfo.id,
+            fileName: vm.fileInfo.fileName,
+            files: "http://140.131.21.65/" + vm.fileInfo.filePath,
+          };
+          vm.groupFile.push(getFile);
+          vm.temp.annexFile = JSON.stringify(vm.groupFile);
+        })
+        .catch((error) => {
+          console.log({ error });
+        });
+    },
     addAward() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {

@@ -67,6 +67,7 @@
             v-model="temp.startDate"
             type="date"
             value-format="yyyy-MM-dd"
+            :picker-options="disBeforeTime"
             placeholder="請選擇上架日期"
           >
           </el-date-picker>
@@ -77,6 +78,7 @@
             v-model="temp.endDate"
             type="date"
             value-format="yyyy-MM-dd"
+            :picker-options="disBeforeTime"
             placeholder="請選擇下架日期"
           >
           </el-date-picker>
@@ -173,6 +175,11 @@ export default {
       openModal: false,
       delModal: false,
       selectListId: "",
+      disBeforeTime: {
+        disabledDate(date) {
+          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+        },
+      },
     };
   },
   methods: {
@@ -213,7 +220,6 @@ export default {
       axios
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
-          console.log(response.data.result[0]);
           vm.imgInfo = response.data.result[0];
           vm.temp.pic = "http://140.131.21.65/" + vm.imgInfo.filePath;
         })

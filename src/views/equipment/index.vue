@@ -274,14 +274,12 @@ export default {
           vm.temp.roomTypeName = item.name;
         }
       });
-      console.log(vm.temp);
     },
     addClassRooms() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
           vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-          console.log(vm.temp);
           classRooms.addClassRooms(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
@@ -303,7 +301,6 @@ export default {
         if (valid) {
           vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
           classRooms.updateClassRooms(vm.temp).then((res) => {
-            console.log(res);
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",

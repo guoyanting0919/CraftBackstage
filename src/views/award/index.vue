@@ -44,11 +44,6 @@
               <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <!-- <el-table-column min-width="400px" :label="'內容'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.contents }}</span>
-            </template>
-          </el-table-column> -->
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
               <el-button
@@ -87,6 +82,7 @@
             v-model="temp.releaseDate"
             type="date"
             value-format="yyyy-MM-dd"
+            :picker-options="disBeforeTime"
             placeholder="請選擇日期"
           >
           </el-date-picker>
@@ -209,6 +205,11 @@ export default {
         ],
       },
       imgInfo: {},
+      disBeforeTime: {
+        disabledDate(date) {
+          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+        },
+      },
     };
   },
   methods: {
@@ -281,7 +282,6 @@ export default {
       axios
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
-          console.log(response.data.result[0]);
           vm.imgInfo = response.data.result[0];
           vm.temp.pics = "http://140.131.21.65/" + vm.imgInfo.filePath;
         })

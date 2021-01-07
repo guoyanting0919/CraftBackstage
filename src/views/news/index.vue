@@ -60,11 +60,6 @@
               <span>{{ scope.row.summury }}</span>
             </template>
           </el-table-column>
-          <!-- <el-table-column min-width="250px" :label="'內容'">
-            <template slot-scope="scope">
-              <span>{{ scope.row.contents }}</span>
-            </template>
-          </el-table-column> -->
           <el-table-column min-width="50px" :label="'類別'">
             <template slot-scope="scope">
               <span>{{ scope.row.newsTypeName }}</span>
@@ -136,15 +131,34 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item size="small" :label="'時間'" prop="releaseDate">
+        <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
           <el-date-picker
             class="fw"
             v-model="temp.releaseDate"
             type="date"
             value-format="yyyy-MM-dd"
-            placeholder="請選擇日期"
+            :picker-options="disBeforeTime"
+            placeholder="請選擇公告日期"
           >
           </el-date-picker>
+        </el-form-item>
+        <el-form-item size="small" :label="'檔案上傳'" prop="attachedFile">
+          <el-upload
+            ref="imageUpload"
+            :show-file-list="false"
+            accept=""
+            class="upload-demo"
+            action=""
+            :http-request="customUpload"
+            :limit="999"
+          >
+            <el-button size="small" type="primary">上傳</el-button>
+          </el-upload>
+          <div class="fw flex-row">
+            <p class="m-0 pr-10" v-for="item in groupFile" :key="item.id">
+              {{ item.fileName }}
+            </p>
+          </div>
         </el-form-item>
         <el-form-item size="small" :label="'排序'">
           <el-input
@@ -179,6 +193,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
@@ -212,11 +227,11 @@ export default {
         title: "",
         summury: "",
         contents: "",
-        attachedFile: "",
+        attachedFile: [],
         sort: "",
       },
       typeList: [],
-
+      fileInfo: {},
       openModal: false,
       modalTitle: "",
       delModal: false,
@@ -252,6 +267,12 @@ export default {
       },
       selectListId: [],
       selectLIstCount: "",
+      groupFile: [],
+      disBeforeTime: {
+        disabledDate(date) {
+          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+        },
+      },
     };
   },
   methods: {
@@ -261,12 +282,10 @@ export default {
         this.buttons.push(el.domId);
       });
     },
-
     /* 是否擁有按鈕功能權限 */
     hasButton(domId) {
       return this.buttons.includes(domId);
     },
-
     /* 獲取最新消資料 */
     getList() {
       const vm = this;
@@ -275,7 +294,6 @@ export default {
         vm.total = res.count;
       });
     },
-
     /* 獲取最新消息類別 */
     getType() {
       const vm = this;
@@ -287,13 +305,13 @@ export default {
         vm.typeList = res.data;
       });
     },
-
     /* 權限按鈕中控 */
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
           this.temp = {};
           this.temp.sort = 999;
+          this.groupFile = [];
           this.modalTitle = "新增";
           this.openModal = true;
           break;
@@ -319,6 +337,7 @@ export default {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
+      this.groupFile = [];
       this.openModal = true;
     },
     handleSelectionChange(data) {
@@ -337,6 +356,26 @@ export default {
           vm.temp.newsTypeName = item.name;
         }
       });
+    },
+    customUpload(file) {
+      const vm = this;
+      let formData = new FormData();
+      formData.append("files", file.file, file.file.name);
+      axios
+        .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
+        .then((response) => {
+          vm.fileInfo = response.data.result[0];
+          let getFile = {
+            id: vm.fileInfo.id,
+            fileName: vm.fileInfo.fileName,
+            files: "http://140.131.21.65/" + vm.fileInfo.filePath,
+          };
+          vm.groupFile.push(getFile);
+          vm.temp.attachedFile = JSON.stringify(vm.groupFile);
+        })
+        .catch((error) => {
+          console.log({ error });
+        });
     },
     addNews() {
       const vm = this;

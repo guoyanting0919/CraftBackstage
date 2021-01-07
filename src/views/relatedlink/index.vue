@@ -244,7 +244,6 @@ export default {
         if (valid) {
           vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
           relatedLinks.updateLinks(vm.temp).then((res) => {
-            console.log(res);
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",

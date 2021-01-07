@@ -95,6 +95,7 @@
             v-model="temp.releaseDate"
             type="date"
             value-format="yyyy-MM-dd"
+            :picker-options="disBeforeTime"
             placeholder="請選擇日期"
           >
           </el-date-picker>
@@ -205,6 +206,11 @@ export default {
           },
         ],
       },
+      disBeforeTime: {
+        disabledDate(date) {
+          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+        },
+      },
     };
   },
   methods: {
@@ -296,7 +302,6 @@ export default {
       vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          console.log(vm.temp);
           departmentAlbem.updateAlbums(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({

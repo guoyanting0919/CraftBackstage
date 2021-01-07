@@ -474,7 +474,6 @@ export default {
       axios
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
-          console.log(response.data.result[0]);
           vm.imgInfo = response.data.result[0];
           vm.temp.pic = "http://140.131.21.65/" + vm.imgInfo.filePath;
         })
@@ -486,7 +485,6 @@ export default {
       this.$router.push("/member/add/" + id);
     },
     filterType(val) {
-      console.log(val);
       if (val !== "all") {
         this.listQuery.MemberTypeId = val;
         this.getList();
