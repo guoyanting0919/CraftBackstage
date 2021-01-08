@@ -68,7 +68,7 @@
 
     <!-- modal -->
     <!-- add -->
-    <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
+    <el-dialog :title="modalTitle" :visible.sync="openModal" width="60%">
       <el-form
         :rules="rules"
         ref="dataForm"
@@ -89,6 +89,9 @@
         </el-form-item>
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
+        </el-form-item>
+        <el-form-item size="small" :label="'內容'" prop="contents">
+          <vue-editor v-model="temp.contents"></vue-editor>
         </el-form-item>
         <el-form-item size="small" :label="'得獎學生'" prop="author">
           <el-input
@@ -163,24 +166,31 @@ export default {
       selectLIstId: "",
       selectLIstCount: "",
       rules: {
-        title: [
-          {
-            required: true,
-            message: "姓名不能為空",
-            trigger: "blur",
-          },
-        ],
         releaseDate: [
           {
             required: true,
-            message: "聯絡電話不能為空",
+            message: "公告日期不能為空",
+            trigger: "blur",
+          },
+        ],
+        title: [
+          {
+            required: true,
+            message: "標題不能為空",
+            trigger: "blur",
+          },
+        ],
+        contents: [
+          {
+            required: true,
+            message: "內容不能為空",
             trigger: "blur",
           },
         ],
         author: [
           {
             required: true,
-            message: "聯絡電話不能為空",
+            message: "得獎學生不能為空",
             trigger: "blur",
           },
         ],

@@ -336,7 +336,7 @@ export default {
         title: [
           {
             required: true,
-            message: "內容不能為空",
+            message: "標題不能為空",
             trigger: "blur",
           },
         ],

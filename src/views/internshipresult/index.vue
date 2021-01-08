@@ -42,6 +42,11 @@
               <span>{{ scope.row.contents }}</span>
             </template>
           </el-table-column>
+          <el-table-column min-width="80px" :label="'是否上傳檔案'">
+            <template slot-scope="scope">
+              <span>{{ !!scope.row.annexFile ? "是" : "否" }}</span>
+            </template>
+          </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
               <el-button

@@ -260,7 +260,7 @@ export default {
         releaseDate: [
           {
             required: true,
-            message: "時間不能為空",
+            message: "公告日期不能為空",
             trigger: "blur",
           },
         ],

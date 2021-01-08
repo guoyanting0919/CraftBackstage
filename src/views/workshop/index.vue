@@ -6,6 +6,22 @@
           <i class="el-icon-back" @click="goPrev"></i>
         </div>
         <div class="filter-container">
+          <el-select
+            class="mr-20"
+            v-model="getTypeVal"
+            placeholder="請選擇類別"
+            no-match-text="暫無數據"
+            @change="filterType"
+          >
+            <el-option value="all" label="全部類別"></el-option>
+            <el-option
+              v-for="item in typeList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.dtValue"
+            >
+            </el-option>
+          </el-select>
           <el-button type="primary" size="mini" plain @click="handleAdd">
             <i class="iconfont icon-xinzeng"></i>
             新增
@@ -28,11 +44,16 @@
             <el-card :body-style="{ padding: '0px' }">
               <el-image
                 style="width: 100%; height: 400px"
-                :src="item.contents"
+                :src="item.pics"
                 fit="cover"
               ></el-image>
-              <div class="p-16">
+              <div
+                class="p-16 d-flex align-items-center justify-content-between"
+              >
                 <strong>{{ item.title }}</strong>
+                <p class="m-0" style="margin-left: auto">
+                  公告日期：{{ item.releaseDate | moment("YYYY-MM-DD") }}
+                </p>
               </div>
               <div class="featuresBox p-16">
                 <el-button
@@ -64,10 +85,38 @@
         label-position="right"
         label-width="100px"
       >
+        <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
+          <el-date-picker
+            class="fw"
+            v-model="temp.releaseDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            :picker-options="disBeforeTime"
+            placeholder="請選擇公告日期"
+          >
+          </el-date-picker>
+        </el-form-item>
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
         </el-form-item>
-        <el-form-item size="small" :label="'圖片'" prop="pic">
+        <el-form-item size="small" :label="'類別'" prop="classTypeId">
+          <el-select
+            v-model="temp.classTypeId"
+            class="fw"
+            placeholder="請選擇類別"
+            no-match-text="暫無數據"
+            @change="getTypeName"
+          >
+            <el-option
+              v-for="item in typeList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.dtValue"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item size="small" :label="'圖片'" prop="pics">
           <el-upload
             ref="imageUpload"
             :show-file-list="false"
@@ -111,12 +160,13 @@
 
 <script>
 import axios from "axios";
+
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
 
 import * as departmentAlbemPic from "@/api/departmentAlbemPic";
-// import * as departmentAlbem from "@/api/departmentAlbem";
 import * as departmentTeachs from "@/api/departmentTeachs";
+import * as categorys from "@/api/categorys";
 
 export default {
   name: "award",
@@ -124,22 +174,38 @@ export default {
   data() {
     return {
       list: [], // 菜單列表
+      typeList: [],
       total: 10,
       listLoading: false,
       listQuery: {
         teachTypeId: "SYS_TEACH_WORKSHOP",
+        classTypeId: "",
+        Years: "",
         page: 1,
         limit: 20,
         key: undefined,
       },
       temp: {
         id: "",
-        teachTypeId: "SYS_TEACH_WORKSHOP",
+        classTypeId: "",
+        teachTypeId: "",
+        teachTypeName: "",
+        releaseDate: "",
         title: "",
+        titleType: "",
+        author: "",
         contents: "",
-        pic: "",
+        pics: "",
+        annexFile: "",
       },
       rules: {
+        releaseDate: [
+          {
+            required: true,
+            message: "公告日期不能為空",
+            trigger: "blur",
+          },
+        ],
         title: [
           {
             required: true,
@@ -147,7 +213,7 @@ export default {
             trigger: "blur",
           },
         ],
-        pic: [
+        pics: [
           {
             required: true,
             message: "圖片不能為空",
@@ -155,11 +221,17 @@ export default {
           },
         ],
       },
+      getTypeVal: "all",
       imgInfo: {},
       modalTitle: "",
       openModal: false,
       delModal: false,
       selectListId: "",
+      disBeforeTime: {
+        disabledDate(date) {
+          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+        },
+      },
     };
   },
   methods: {
@@ -171,14 +243,26 @@ export default {
         vm.total = res.count;
       });
     },
+    /* 獲取四大工坊類別 */
+    getType() {
+      const vm = this;
+      let params = {
+        TypeId: "SYS_CLASSTYPE",
+        limit: 999,
+      };
+      categorys.getList(params).then((res) => {
+        vm.typeList = res.data;
+      });
+    },
     handleAdd() {
       if (this.$refs.imageUpload) {
         this.$refs.imageUpload.clearFiles();
       }
       this.modalTitle = "新增";
       this.temp = {};
+      this.temp.teachTypeId = "SYS_TEACH_WORKSHOP";
+      this.temp.teachTypeName = "工作室成果";
       this.imgInfo = {};
-      this.temp.sort = 999;
       this.openModal = true;
     },
     rowClick() {},
@@ -202,24 +286,27 @@ export default {
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
           vm.imgInfo = response.data.result[0];
-          vm.temp.pic = "http://140.131.21.65/" + vm.imgInfo.filePath;
+          vm.temp.pics =
+            `${process.env.VUE_APP_BASE_IMG_URL}` + vm.imgInfo.filePath;
         })
         .catch((error) => {
           console.log({ error });
         });
     },
+    getTypeName(typeId) {
+      const vm = this;
+      vm.typeList.filter((item) => {
+        if (typeId === item.dtValue) {
+          vm.temp.titleType = item.name;
+        }
+      });
+    },
     addAlbumPic() {
       const vm = this;
-      const addInfo = {
-        id: "",
-        title: vm.temp.title,
-        contents: vm.temp.pic,
-        sort: vm.temp.sort,
-        teachTypeId: "SYS_TEACH_WORKSHOP",
-      };
+      console.log(vm.temp);
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          departmentTeachs.addDepartmentTeachs(addInfo).then((res) => {
+          departmentTeachs.addDepartmentTeachs(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
                 title: "成功",
@@ -236,9 +323,10 @@ export default {
     },
     editAlbumPic() {
       const vm = this;
+      vm.temp.teachTypeId = "SYS_TEACH_WORKSHOP";
+      vm.temp.teachTypeName = "工作室成果";
       vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
-          vm.temp.contents = vm.temp.pic;
           departmentTeachs.updateDepartmentTeachs(vm.temp).then((res) => {
             if (res.code === 200) {
               vm.$notify({
@@ -275,7 +363,7 @@ export default {
         id: data.id,
         albumId: data.albumId,
         title: data.title,
-        pic: data.pic,
+        pics: data.pics,
         sort: data.sort,
         isCover: true,
       };
@@ -285,7 +373,7 @@ export default {
             id: res.id,
             albumId: res.albumId,
             title: res.title,
-            pic: res.pic,
+            pics: res.pics,
             sort: data.sort,
             isCover: false,
           };
@@ -310,13 +398,22 @@ export default {
         duration: 2000,
       });
     },
-
+    filterType(val) {
+      if (val !== "all") {
+        this.listQuery.classTypeId = val;
+        this.getList();
+      } else {
+        this.listQuery.classTypeId = "";
+        this.getList();
+      }
+    },
     goPrev() {
       this.$router.push("/record/index");
     },
   },
   mounted() {
     this.getList();
+    this.getType();
   },
 };
 </script>

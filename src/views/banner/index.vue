@@ -165,7 +165,7 @@ export default {
         startDate: [
           {
             required: true,
-            message: "上架不能為空",
+            message: "上架日期不能為空",
             trigger: "blur",
           },
         ],
