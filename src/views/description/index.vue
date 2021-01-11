@@ -55,7 +55,7 @@
               <span>{{ scope.row.typeName }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80" :label="'是否上傳檔案'">
+          <el-table-column min-width="80" :label="'是否有檔案'">
             <template slot-scope="scope">
               <span>{{ !!scope.row.fileLink ? "是" : "否" }}</span>
             </template>
@@ -115,7 +115,38 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item size="small" :label="'檔案上傳'" prop="fileLink">
+        <el-form-item size="small" :label="'檔案類型'">
+          <el-select
+            v-model="temp.linkType"
+            class="fw"
+            placeholder="請選擇類型"
+            no-match-text="暫無數據"
+          >
+            <el-option
+              v-for="item in fileTypeList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          size="small"
+          :label="'檔案連結'"
+          prop="fileLink"
+          v-if="temp.linkType == 'link'"
+        >
+          <el-input
+            v-model="temp.fileLink"
+            placeholder="請輸入檔案連結"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          size="small"
+          :label="'檔案上傳'"
+          v-if="temp.linkType == 'upload'"
+        >
           <el-upload
             ref="imageUpload"
             :show-file-list="false"
@@ -180,6 +211,18 @@ export default {
       buttons: [],
       list: [], // 菜單列表
       typeList: [],
+      fileTypeList: [
+        {
+          id: 1,
+          name: "網址連結",
+          value: "link",
+        },
+        {
+          id: 2,
+          name: "檔案上傳",
+          value: "upload",
+        },
+      ],
       total: 10,
       listLoading: false,
       listQuery: {
@@ -194,6 +237,7 @@ export default {
         typeName: "",
         fileName: "",
         fileLink: "",
+        linkType: "",
       },
       modalTitle: "",
       openModal: false,
@@ -202,6 +246,7 @@ export default {
       selectLIstCount: "",
       fileInfo: {},
       getSysType: "all",
+      fileType: "",
       rules: {
         fileName: [
           {
@@ -214,6 +259,13 @@ export default {
           {
             required: true,
             message: "類別不能為空",
+            trigger: "blur",
+          },
+        ],
+        fileLink: [
+          {
+            required: true,
+            message: "檔案不能為空",
             trigger: "blur",
           },
         ],
