@@ -31,6 +31,11 @@
                 :src="item.links"
                 fit="cover"
               ></el-image>
+              <div class="fw">
+                <div class="px-16 pt-16">
+                  <strong class="font-s-18">{{ item.description }}</strong>
+                </div>
+              </div>
               <div class="featuresBox p-16">
                 <a class="pb-3" v-if="!item.isCover" @click="setCover(item)">
                   <i class="el-icon-wind-power">設為封面</i>
@@ -60,7 +65,19 @@
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
-      <el-form :model="temp" label-position="right" label-width="100px">
+      <el-form
+        :rules="rules"
+        ref="dataForm"
+        :model="temp"
+        label-position="right"
+        label-width="100px"
+      >
+        <el-form-item size="small" :label="'名稱'" prop="description">
+          <el-input
+            v-model="temp.description"
+            placeholder="請輸入名稱"
+          ></el-input>
+        </el-form-item>
         <el-form-item size="small" :label="'圖片'" prop="links">
           <el-upload
             ref="imageUpload"
@@ -99,9 +116,7 @@
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除嗎？
-        </strong>
+        <strong class="font-s-18">確定要刪除嗎？ </strong>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="delModal = false">取消</el-button>
@@ -142,6 +157,22 @@ export default {
         description: "",
         sort: "",
         isCover: false,
+      },
+      rules: {
+        description: [
+          {
+            required: true,
+            message: "名稱不能為空",
+            trigger: "blur",
+          },
+        ],
+        links: [
+          {
+            required: true,
+            message: "圖片不能為空",
+            trigger: "blur",
+          },
+        ],
       },
       imgInfo: {},
       modalTitle: "",
@@ -208,7 +239,7 @@ export default {
         roomId: vm.$route.params.id,
         linkType: 0,
         links: vm.temp.links,
-        description: "",
+        description: vm.temp.description,
         sort: vm.temp.sort,
         isCover: false,
       };
