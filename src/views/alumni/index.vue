@@ -29,19 +29,24 @@
             type="selection"
             width="55"
           ></el-table-column>
-          <el-table-column min-width="100px" :label="'公告日期'">
+          <el-table-column min-width="200px" :label="'公告日期'">
             <template slot-scope="scope">
               <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="200px" :label="'標題'">
+          <el-table-column min-width="300px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'得獎學生'">
+          <el-table-column min-width="150px" :label="'得獎學生'">
             <template slot-scope="scope">
               <span>{{ scope.row.author }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="100px" :label="'附件'">
+            <template slot-scope="scope">
+              <span>{{ scope.row.annexFile ? "有" : "無" }}</span>
             </template>
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
@@ -99,6 +104,25 @@
             placeholder="請輸入得獎學生"
           ></el-input>
         </el-form-item>
+        <el-form-item size="small" :label="'檔案上傳'" prop="annexFile">
+          <el-upload
+            ref="imageUpload"
+            :show-file-list="false"
+            accept=""
+            class="upload-demo"
+            action=""
+            :http-request="customUpload"
+            :limit="999"
+          >
+            <el-button size="small" type="primary">上傳</el-button>
+          </el-upload>
+          <div class="fw flex-row">
+            <!-- <p class="m-0 pr-10" v-for="item in groupFile" :key="item.id">
+              {{ item.fileName }}
+            </p> -->
+            <p class="m-0">{{ fileInfo.fileName }}</p>
+          </div>
+        </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -130,6 +154,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
 import permissionBtn from "@/components/PermissionBtn";
@@ -158,13 +183,14 @@ export default {
         releaseDate: "",
         author: "",
         contents: "",
-        annexFile: "",
+        annexFile: {},
       },
       modalTitle: "",
       openModal: false,
       delModal: false,
       selectLIstId: "",
       selectLIstCount: "",
+      fileInfo: {},
       rules: {
         releaseDate: [
           {
@@ -209,12 +235,10 @@ export default {
         this.buttons.push(el.domId);
       });
     },
-
     /* 是否擁有按鈕功能權限 */
     hasButton(domId) {
       return this.buttons.includes(domId);
     },
-
     /* 獲取成員資料 */
     getList() {
       const vm = this;
@@ -223,11 +247,11 @@ export default {
         vm.total = res.count;
       });
     },
-
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
           this.temp = {};
+          this.imgInfo = {};
           this.modalTitle = "新增";
           this.openModal = true;
           break;
@@ -252,6 +276,7 @@ export default {
       departmentAlumnis.getAlumnis({ id: data.id }).then((res) => {
         this.temp = Object.assign({}, res.result);
       });
+      this.imgInfo = {};
       this.modalTitle = "編輯";
       this.openModal = true;
     },
@@ -260,6 +285,26 @@ export default {
       this.selectLIstCount = data.length;
     },
     handleCurrentChange() {},
+
+    customUpload(file) {
+      const vm = this;
+      let formData = new FormData();
+      formData.append("files", file.file, file.file.name);
+      axios
+        .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
+        .then((response) => {
+          vm.fileInfo = response.data.result[0];
+          let getFile = {
+            id: vm.fileInfo.id,
+            fileName: vm.fileInfo.fileName,
+            files: "http://140.131.21.65/" + vm.fileInfo.filePath,
+          };
+          this.temp.annexFile = JSON.stringify(getFile);
+        })
+        .catch((error) => {
+          console.log({ error });
+        });
+    },
     addAlumnis() {
       const vm = this;
       vm.$refs["dataForm"].validate((valid) => {
