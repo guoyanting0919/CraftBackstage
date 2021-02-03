@@ -6,7 +6,8 @@
         <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)">
           <el-table-column :label="'內容'">
             <template slot-scope="scope">
-              <vue-editor class="disEditor" v-model="scope.row.contents" :disabled="true" />
+              <!-- <vue-editor class="disEditor" v-model="scope.row.contents" :disabled="true" /> -->
+              <ckeditor class="disEditor" :value="scope.row.contents" :config="setConfig" />
             </template>
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
@@ -24,7 +25,8 @@
     <el-dialog title="編輯" :visible.sync="openModal" width="60%">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'內容'" prop="contents">
-          <vue-editor v-model="temp.contents" />
+          <!-- <vue-editor v-model="temp.contents" /> -->
+          <ckeditor :value="temp.contents" />
         </el-form-item>
       </el-form>
 
@@ -47,6 +49,10 @@ export default {
   components: { Title, Pagination },
   data() {
     return {
+      setConfig: {
+        readOnly: true,
+        extraPlugins: "button,panelbutton,colorbutton",
+      },
       /* 權限按鈕 */
       buttons: [],
       list: [], // 菜單列表
@@ -131,23 +137,17 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #workCamp {
-  .ql-container {
-    background-color: #2d2d2d !important;
-  }
-
   .disEditor {
-    .ql-editor {
-      min-height: 100px;
-    }
-    .ql-toolbar {
-      display: none !important;
-    }
-    .ql-container {
-      border: none !important;
-      ol {
-        padding-left: 0;
+    .cke {
+      &_contents {
+        min-height: calc(100vh - 245px);
+      }
+
+      &_top,
+      &_bottom {
+        display: none !important;
       }
     }
   }

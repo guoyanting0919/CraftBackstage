@@ -24,6 +24,7 @@ import VueContextMenu from "vue-contextmenu";
 
 /* Vue2Editor */
 import Vue2Editor from "vue2-editor";
+import CKEditor from 'ckeditor4-vue';
 
 /* s */
 import "@/styles/index.scss";
@@ -46,11 +47,14 @@ import "@/assets/iconfont/iconfont.js";
 /* all.scss(建議放套件Css下層) */
 import "../src/assets/all.scss";
 
-Vue.use(ElementUI, { locale });
+Vue.use(ElementUI, {
+  locale
+});
 Vue.use(require('vue-moment'));
 Vue.use(VueSweetalert2);
 Vue.use(VueContextMenu);
 Vue.use(Vue2Editor);
+Vue.use(CKEditor);
 Vue.use(VCharts);
 
 const alertT = Vue.prototype.$swal.mixin({
@@ -79,7 +83,7 @@ const alertM = Vue.prototype.$swal.mixin({
   },
 });
 
-let globalConsole = function(data) {
+let globalConsole = function (data) {
   if (process.env.NODE_ENV === "development") console.log(data);
 };
 

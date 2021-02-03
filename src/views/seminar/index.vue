@@ -48,9 +48,14 @@
                   </template>
                 </el-table-column>
               </el-table>
+
               <div v-else>
-                <vue-editor v-model="list[0].contents" />
+                <ckeditor class="disEditor" :value="list[0].contents" :config="setConfig" />
               </div>
+
+              <!-- <div v-else>
+                <vue-editor v-model="list[0].contents" />
+              </div> -->
             </div>
           </el-tab-pane>
         </el-tabs>
@@ -114,12 +119,13 @@
     <el-dialog :title="'編輯－' + activeTabValue" :visible.sync="openSeminarModal" width="60%">
       <el-form :rules="rules_seminar" ref="dataForm_seminar" :model="temp_seminar" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'內容'" prop="contents">
-          <vue-editor v-model="temp_seminar.contents" />
+          <ckeditor :value="temp_seminar.contents" v-model="temp_seminar.contents" />
+          <!-- <vue-editor v-model="temp_seminar.contents" /> -->
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="openModal = false">取消</el-button>
+        <el-button @click="openSeminarModal = false">取消</el-button>
         <el-button type="primary" @click="editSeminar">確認</el-button>
       </span>
     </el-dialog>
@@ -138,6 +144,10 @@ export default {
   components: { Title },
   data() {
     return {
+      setConfig: {
+        readOnly: true,
+        extraPlugins: "button,panelbutton,colorbutton",
+      },
       /* 權限按鈕 */
       buttons: [],
       list: [], // 菜單列表
@@ -439,6 +449,19 @@ export default {
     border: none !important;
     ol {
       padding-left: 0;
+    }
+  }
+
+  .disEditor {
+    .cke {
+      &_contents {
+        min-height: calc(100vh - 210px);
+      }
+
+      &_top,
+      &_bottom {
+        display: none !important;
+      }
     }
   }
 }

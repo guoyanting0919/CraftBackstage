@@ -6,20 +6,9 @@
           <i class="el-icon-back" @click="goPrev"></i>
         </div>
         <div class="filter-container">
-          <el-select
-            v-model="getMemberType"
-            class="mr-20"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="filterType"
-          >
+          <el-select v-model="getMemberType" class="mr-20" placeholder="請選擇類別" no-match-text="暫無數據" @change="filterType">
             <el-option value="all" label="全部類別"></el-option>
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
+            <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
             </el-option>
           </el-select>
           <el-button type="primary" size="mini" plain @click="handleAdd">
@@ -36,23 +25,8 @@
     <div class="app-container flex-item">
       <Title title="新增成員相關資料"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
+        <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
+          <el-table-column align="center" type="selection" width="55"></el-table-column>
           <el-table-column min-width="300px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
@@ -95,30 +69,16 @@
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-              >
+              <el-button size="mini" type="warning" @click="handleEdit(scope.row)">
                 編輯
               </el-button>
-              <el-button
-                size="mini"
-                type="info"
-                @click="addImage(scope.row.id)"
-              >
+              <el-button size="mini" type="info" @click="addImage(scope.row.id)">
                 新增相片
               </el-button>
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
+        <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleCurrentChange" />
       </div>
     </div>
 
@@ -126,129 +86,51 @@
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="50%">
       <el-tabs v-model="temp.dataTypeId" @tab-click="handleClick">
-        <el-tab-pane
-          :label="item.name"
-          :name="item.dtValue"
-          v-for="item in typeList"
-          :key="item.id"
-        >
-          <el-form
-            v-if="temp.dataTypeId"
-            :rules="rules"
-            :ref="`dataForm${item.dtValue}`"
-            :model="temp"
-            label-position="right"
-            label-width="100px"
-          >
+        <el-tab-pane :label="item.name" :name="item.dtValue" v-for="item in typeList" :key="item.id">
+          <el-form v-if="temp.dataTypeId" :rules="rules" :ref="`dataForm${item.dtValue}`" :model="temp" label-position="right" label-width="100px">
             <!-- title -->
             <el-form-item size="small" :label="'標題'" prop="title">
-              <el-input
-                v-model="temp.title"
-                placeholder="請輸入標題"
-              ></el-input>
+              <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
             </el-form-item>
             <!-- contents -->
-            <el-form-item
-              size="small"
-              :label="'內容'"
-              prop="contents"
-              v-if="check('內容')"
-            >
-              <vue-editor
-                v-model="temp.contents"
-                v-if="temp.dataTypeId == 'SYS_MEMBERDATA_RESEARCHPUBLIC'"
-              />
-              <el-input
-                type="textarea"
-                v-model="temp.contents"
-                :autosize="{ minRows: 2 }"
-                placeholder="請輸入內容"
-                v-else
-              ></el-input>
+            <el-form-item size="small" :label="'內容'" prop="contents" v-if="check('內容')">
+              <vue-editor v-model="temp.contents" v-if="temp.dataTypeId == 'SYS_MEMBERDATA_RESEARCHPUBLIC'" />
+              <!-- <el-input type="textarea" v-model="temp.contents" :autosize="{ minRows: 2 }" placeholder="請輸入內容" v-else></el-input> -->
             </el-form-item>
             <!-- year -->
-            <el-form-item
-              size="small"
-              :label="'年度'"
-              v-if="check('年度')"
-            >
-              <el-date-picker
-                class="fw"
-                v-model="temp.year"
-                type="year"
-                value-format="yyyy"
-                placeholder="請選擇年度"
-              >
+            <el-form-item size="small" :label="'年度'" v-if="check('年度')">
+              <el-date-picker class="fw" v-model="temp.year" type="year" value-format="yyyy" placeholder="請選擇年度">
               </el-date-picker>
             </el-form-item>
             <!-- joinMember -->
-            <el-form-item
-              size="small"
-              :label="'參與人'"
-              v-if="check('參與人')"
-            >
-              <el-input
-                v-model="temp.joinMember"
-                placeholder="請輸入參與人"
-              ></el-input>
+            <el-form-item size="small" :label="'參與人'" v-if="check('參與人')">
+              <el-input v-model="temp.joinMember" placeholder="請輸入參與人"></el-input>
             </el-form-item>
             <!-- jobTitle -->
-            <el-form-item
-              size="small"
-              :label="'擔任之工作'"
-              v-if="check('職稱')"
-            >
-              <el-input
-                v-model="temp.jobTitle"
-                placeholder="請輸入擔任之工作"
-              ></el-input>
+            <el-form-item size="small" :label="'擔任之工作'" v-if="check('職稱')">
+              <el-input v-model="temp.jobTitle" placeholder="請輸入擔任之工作"></el-input>
             </el-form-item>
             <!-- mechanismName -->
-            <el-form-item
-              size="small"
-              :label="specialName()"
-              v-if="check('機構')"
-            >
-              <el-input
-                v-model="temp.mechanismName"
-                :placeholder="'請輸入' + specialName()"
-              ></el-input>
+            <el-form-item size="small" :label="specialName()" v-if="check('機構')">
+              <el-input v-model="temp.mechanismName" :placeholder="'請輸入' + specialName()"></el-input>
             </el-form-item>
             <!-- startDate -->
             <el-form-item size="small" :label="'開始時間'" prop="startDate">
-              <el-date-picker
-                class="fw"
-                v-model="temp.startDate"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="請選擇日期"
-              >
+              <el-date-picker class="fw" v-model="temp.startDate" type="date" value-format="yyyy-MM-dd" placeholder="請選擇日期">
               </el-date-picker>
             </el-form-item>
             <!-- endDate -->
             <el-form-item size="small" :label="'結束時間'">
-              <el-date-picker
-                class="fw"
-                v-model="temp.endDate"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="請選擇日期"
-              >
+              <el-date-picker class="fw" v-model="temp.endDate" type="date" value-format="yyyy-MM-dd" placeholder="請選擇日期">
               </el-date-picker>
             </el-form-item>
             <!-- 備註 -->
             <el-form-item size="small" :label="'備註'" v-if="check('備註')">
-              <el-input
-                v-model="temp.remark"
-                placeholder="請輸入備註"
-              ></el-input>
+              <el-input v-model="temp.remark" placeholder="請輸入備註"></el-input>
             </el-form-item>
             <!-- sort -->
             <el-form-item size="small" :label="'排序'">
-              <el-input
-                v-model="temp.sort"
-                placeholder="請輸入排序（預設：999）"
-              ></el-input>
+              <el-input v-model="temp.sort" placeholder="請輸入排序（預設：999）"></el-input>
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -256,24 +138,17 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addMemberData"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addMemberData" v-if="modalTitle == '新增'">
           確認
         </el-button>
-        <el-button type="primary" @click="editMemberData" v-else
-          >確認</el-button
-        >
+        <el-button type="primary" @click="editMemberData" v-else>確認</el-button>
       </span>
     </el-dialog>
 
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        <strong class="font-s-18">確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
         </strong>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -467,8 +342,8 @@ export default {
       const vm = this;
       vm.temp.memberId = this.$route.params.id;
       vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-      const dom = `dataForm${this.temp.dataTypeId}`
-      
+      const dom = `dataForm${this.temp.dataTypeId}`;
+
       vm.$refs[dom][0].validate((valid) => {
         if (valid) {
           departmentMemberDatas

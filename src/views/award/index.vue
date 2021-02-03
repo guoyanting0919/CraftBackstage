@@ -2,33 +2,14 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <permission-btn
-          size="mini"
-          moduleName="modulemanager"
-          v-on:btn-event="onBtnClicked"
-        ></permission-btn>
+        <permission-btn size="mini" moduleName="modulemanager" v-on:btn-event="onBtnClicked"></permission-btn>
       </div>
     </sticky>
     <div class="app-container flex-item">
       <Title title="競賽得獎管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
+        <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
+          <el-table-column align="center" type="selection" width="55"></el-table-column>
           <el-table-column min-width="100px" :label="'公告日期'">
             <template slot-scope="scope">
               <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
@@ -46,45 +27,20 @@
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-                v-if="hasButton('edit')"
-                >編輯</el-button
-              >
+              <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">編輯</el-button>
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
+        <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleCurrentChange" />
       </div>
     </div>
 
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="50%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
-          <el-date-picker
-            class="fw"
-            v-model="temp.releaseDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            :picker-options="disBeforeTime"
-            placeholder="請選擇日期"
-          >
+          <el-date-picker class="fw" v-model="temp.releaseDate" type="date" value-format="yyyy-MM-dd" :picker-options="disBeforeTime" placeholder="請選擇日期">
           </el-date-picker>
         </el-form-item>
         <el-form-item size="small" :label="'標題'" prop="title">
@@ -100,15 +56,7 @@
           ></el-input> -->
         </el-form-item>
         <el-form-item size="small" :label="'圖片'" prop="pic">
-          <el-upload
-            ref="imageUpload"
-            :show-file-list="false"
-            accept=".png,.jpg,.jpeg,.svg"
-            class="upload-demo"
-            action=""
-            :http-request="customUpload"
-            :limit="999"
-          >
+          <el-upload ref="imageUpload" :show-file-list="false" accept=".png,.jpg,.jpeg,.svg" class="upload-demo" action="" :http-request="customUpload" :limit="999">
             <el-button size="small" type="primary">上傳</el-button>
             <p class="m-0">{{ imgInfo.fileName }}</p>
           </el-upload>
@@ -127,8 +75,7 @@
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        <strong class="font-s-18">確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
         </strong>
       </div>
       <span slot="footer" class="dialog-footer">

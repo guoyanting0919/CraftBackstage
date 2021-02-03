@@ -2,49 +2,19 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <el-select
-          v-model="getEduType"
-          class="mr-20"
-          placeholder="請選擇類別"
-          no-match-text="暫無數據"
-          @change="filterType"
-        >
+        <el-select v-model="getEduType" class="mr-20" placeholder="請選擇類別" no-match-text="暫無數據" @change="filterType">
           <el-option value="all" label="全部類別"></el-option>
-          <el-option
-            v-for="item in typeList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.dtValue"
-          >
+          <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
           </el-option>
         </el-select>
-        <permission-btn
-          size="mini"
-          moduleName="modulemanager"
-          v-on:btn-event="onBtnClicked"
-        ></permission-btn>
+        <permission-btn size="mini" moduleName="modulemanager" v-on:btn-event="onBtnClicked"></permission-btn>
       </div>
     </sticky>
     <div class="app-container flex-item">
       <Title title="最新消息管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
+        <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
+          <el-table-column align="center" type="selection" width="55"></el-table-column>
           <el-table-column min-width="150px" :label="'公告日期'">
             <template slot-scope="scope">
               <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
@@ -72,99 +42,45 @@
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-                v-if="hasButton('edit')"
-                >編輯</el-button
-              >
+              <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">編輯</el-button>
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
+        <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleCurrentChange" />
       </div>
     </div>
 
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="60%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
-          <el-date-picker
-            class="fw"
-            v-model="temp.releaseDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            :picker-options="disBeforeTime"
-            placeholder="請選擇公告日期"
-          >
+          <el-date-picker class="fw" v-model="temp.releaseDate" type="date" value-format="yyyy-MM-dd" :picker-options="disBeforeTime" placeholder="請選擇公告日期">
           </el-date-picker>
         </el-form-item>
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'副標題'">
-          <el-input
-            v-model="temp.summury"
-            placeholder="請輸入副標題"
-          ></el-input>
+          <el-input v-model="temp.summury" placeholder="請輸入副標題"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'內容'" prop="contents">
           <vue-editor v-model="temp.contents" />
         </el-form-item>
         <el-form-item size="small" :label="'類別'" prop="typeId">
-          <el-select
-            v-model="temp.typeId"
-            class="fw"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="getTypeName"
-          >
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
+          <el-select v-model="temp.typeId" class="fw" placeholder="請選擇類別" no-match-text="暫無數據" @change="getTypeName">
+            <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item size="small" :label="'連結'">
-          <el-input
-            v-model="temp.linkName"
-            placeholder="請輸入連結名稱"
-          ></el-input>
-          <el-input
-            v-model="temp.linkUrl"
-            :placeholder="
+          <el-input v-model="temp.linkName" placeholder="請輸入連結名稱"></el-input>
+          <el-input v-model="temp.linkUrl" :placeholder="
               !temp.linkName ? '請先輸入連結名稱' : '請輸入網址連結'
-            "
-            :disabled="!temp.linkName"
-          ></el-input>
+            " :disabled="!temp.linkName"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'檔案上傳'" prop="attachedFile">
-          <el-upload
-            ref="imageUpload"
-            :show-file-list="false"
-            accept=""
-            class="upload-demo"
-            action=""
-            :http-request="customUpload"
-            :limit="999"
-          >
+          <el-upload ref="imageUpload" :show-file-list="false" accept="" class="upload-demo" action="" :http-request="customUpload" :limit="999">
             <el-button size="small" type="primary">上傳</el-button>
           </el-upload>
           <div class="fw flex-row">
@@ -174,33 +90,23 @@
           </div>
         </el-form-item>
         <el-form-item size="small" :label="'排序'">
-          <el-input
-            v-model="temp.sort"
-            placeholder="請輸入排序（預設：999）"
-          ></el-input>
+          <el-input v-model="temp.sort" placeholder="請輸入排序（預設：999）"></el-input>
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addDepartmentRules"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addDepartmentRules" v-if="modalTitle == '新增'">
           確認
         </el-button>
-        <el-button type="primary" @click="editDepartmentRules" v-else
-          >確認</el-button
-        >
+        <el-button type="primary" @click="editDepartmentRules" v-else>確認</el-button>
       </span>
     </el-dialog>
 
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        <strong class="font-s-18">確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
         </strong>
       </div>
       <span slot="footer" class="dialog-footer">
