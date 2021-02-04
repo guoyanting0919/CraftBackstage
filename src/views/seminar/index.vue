@@ -1,8 +1,8 @@
 <template>
-  <div class="flex-column">
+  <div id="seminar" class="flex-column">
     <div class="app-container flex-item">
       <Title title="研討會管理"></Title>
-      <div class="bg-white" style="height: calc(100% - 50px)">
+      <div class="bg-white">
         <el-tabs v-model="activeTabValue" tab-position="right" style="height: 100%" @tab-click="changeTab">
           <el-tab-pane :label="item.label" :name="item.label" v-for="item in tabData" :key="item.id">
             <div class="tabContent">
@@ -50,7 +50,10 @@
               </el-table>
 
               <div v-else>
-                <ckeditor class="disEditor" :value="list[0].contents" :config="setConfig" />
+                <!-- <ckeditor class="disEditor" :value="list[0].contents" :config="setConfig" /> -->
+                <div class="CkContent">
+                  <div v-html="list[0].contents"></div>
+                </div>
               </div>
 
               <!-- <div v-else>
@@ -116,10 +119,10 @@
     </el-dialog>
 
     <!-- seminar edit -->
-    <el-dialog :title="'編輯－' + activeTabValue" :visible.sync="openSeminarModal" width="60%">
+    <el-dialog :title="'編輯－' + activeTabValue" :visible.sync="openSeminarModal" width="80%">
       <el-form :rules="rules_seminar" ref="dataForm_seminar" :model="temp_seminar" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'內容'" prop="contents">
-          <ckeditor :value="temp_seminar.contents" v-model="temp_seminar.contents" />
+          <ckeditor class="modalCKContent" :value="temp_seminar.contents" v-model="temp_seminar.contents" />
           <!-- <vue-editor v-model="temp_seminar.contents" /> -->
         </el-form-item>
       </el-form>
@@ -423,46 +426,59 @@ export default {
 </script>
 
 <style lang="scss">
-.tabContent {
-  padding: 8px;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+#seminar {
+  // height: 150vh !important;
+  ::-webkit-scrollbar {
+    width: 0px;
   }
 
-  .el-divider {
-    margin-top: 8px;
-    margin-bottom: 8px;
-  }
+  .tabContent {
+    padding: 8px;
 
-  .ql-editor {
-    min-height: 100px;
-  }
-
-  .ql-toolbar {
-    display: none !important;
-  }
-
-  .ql-container {
-    border: none !important;
-    ol {
-      padding-left: 0;
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-  }
 
-  .disEditor {
-    .cke {
-      &_contents {
-        min-height: calc(100vh - 210px);
-      }
+    .el-divider {
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
 
-      &_top,
-      &_bottom {
-        display: none !important;
+    .ql-editor {
+      min-height: 100px;
+    }
+
+    .ql-toolbar {
+      display: none !important;
+    }
+
+    .ql-container {
+      border: none !important;
+      ol {
+        padding-left: 0;
       }
     }
+
+    .CkContent {
+      background-color: #2d2d2d;
+      padding: 2rem 0;
+      min-height: calc(100vh - 210px);
+    }
+
+    // .disEditor {
+    //   .cke {
+    //     &_contents {
+    //       min-height: calc(100vh - 210px);
+    //     }
+
+    //     &_top,
+    //     &_bottom {
+    //       display: none !important;
+    //     }
+    //   }
+    // }
   }
 }
 </style>

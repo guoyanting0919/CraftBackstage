@@ -26,7 +26,7 @@
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'內容'" prop="contents">
           <!-- <vue-editor v-model="temp.contents" /> -->
-          <ckeditor :value="temp.contents" />
+          <ckeditor :value="temp.contents" v-model="temp.contents" />
         </el-form-item>
       </el-form>
 
@@ -137,7 +137,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 #workCamp {
   .disEditor {
     .cke {

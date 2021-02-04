@@ -22,7 +22,7 @@ import VueSweetalert2 from "vue-sweetalert2";
 
 import VueContextMenu from "vue-contextmenu";
 
-/* Vue2Editor */
+/* Editor */
 import Vue2Editor from "vue2-editor";
 import CKEditor from 'ckeditor4-vue';
 
