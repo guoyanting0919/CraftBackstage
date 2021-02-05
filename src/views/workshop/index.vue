@@ -6,20 +6,9 @@
           <i class="el-icon-back" @click="goPrev"></i>
         </div>
         <div class="filter-container">
-          <el-select
-            class="mr-20"
-            v-model="getTypeVal"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="filterType"
-          >
+          <el-select class="mr-20" v-model="getTypeVal" placeholder="請選擇類別" no-match-text="暫無數據" @change="filterType">
             <el-option value="all" label="全部類別"></el-option>
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
+            <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
             </el-option>
           </el-select>
           <el-button type="primary" size="mini" plain @click="handleAdd">
@@ -33,41 +22,20 @@
       <Title title="工作室成果"></Title>
       <div class="bg-white">
         <el-row class="p-20">
-          <el-col
-            class="p-20"
-            :lg="8"
-            :md="12"
-            :sm="24"
-            v-for="item in list"
-            :key="item.id"
-          >
+          <el-col class="p-20" :lg="8" :md="12" :sm="24" v-for="item in list" :key="item.id">
             <el-card :body-style="{ padding: '0px' }">
-              <el-image
-                style="width: 100%; height: 400px"
-                :src="item.pics"
-                fit="cover"
-              ></el-image>
-              <div
-                class="p-16 d-flex align-items-center justify-content-between"
-              >
+              <el-image style="width: 100%; height: 400px" :src="item.pics" fit="cover"></el-image>
+              <div class="p-16 d-flex align-items-center justify-content-between">
                 <strong>{{ item.title }}</strong>
                 <p class="m-0" style="margin-left: auto">
                   公告日期：{{ item.releaseDate | moment("YYYY-MM-DD") }}
                 </p>
               </div>
               <div class="featuresBox p-16">
-                <el-button
-                  size="mini"
-                  type="warning"
-                  @click="handleEdit(item)"
-                  plain
-                >
+                <el-button size="mini" type="warning" @click="handleEdit(item)" plain>
                   編輯
                 </el-button>
-                <span
-                  class="iconfont icon-garbage featuresBox__del ml-10 font-s-18"
-                  @click="handleDel(item)"
-                ></span>
+                <span class="iconfont icon-garbage featuresBox__del ml-10 font-s-18" @click="handleDel(item)"></span>
               </div>
             </el-card>
           </el-col>
@@ -78,54 +46,22 @@
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
-          <el-date-picker
-            class="fw"
-            v-model="temp.releaseDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            :picker-options="disBeforeTime"
-            placeholder="請選擇公告日期"
-          >
+          <el-date-picker class="fw" v-model="temp.releaseDate" type="date" value-format="yyyy-MM-dd" :picker-options="disBeforeTime" placeholder="請選擇公告日期">
           </el-date-picker>
         </el-form-item>
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'類別'" prop="classTypeId">
-          <el-select
-            v-model="temp.classTypeId"
-            class="fw"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="getTypeName"
-          >
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
+          <el-select v-model="temp.classTypeId" class="fw" placeholder="請選擇類別" no-match-text="暫無數據" @change="getTypeName">
+            <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item size="small" :label="'圖片'" prop="pics">
-          <el-upload
-            ref="imageUpload"
-            :show-file-list="false"
-            accept=".png"
-            class="upload-demo"
-            action=""
-            :http-request="customUpload"
-            :limit="999"
-          >
+          <el-upload ref="imageUpload" :show-file-list="false" accept=".png,.jpg,.jpeg,.svg" class="upload-demo" action="" :http-request="customUpload" :limit="999">
             <el-button size="small" type="primary">上傳</el-button>
             <p class="m-0">{{ imgInfo.fileName }}</p>
           </el-upload>
@@ -134,11 +70,7 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addAlbumPic"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addAlbumPic" v-if="modalTitle == '新增'">
           確認
         </el-button>
         <el-button type="primary" @click="editAlbumPic" v-else>確認</el-button>
