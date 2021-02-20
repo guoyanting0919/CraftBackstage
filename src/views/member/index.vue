@@ -2,49 +2,19 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <el-select
-          v-model="getMemberType"
-          class=""
-          placeholder="請選擇類別"
-          no-match-text="暫無數據"
-          @change="filterType"
-        >
+        <el-select v-model="getMemberType" class="" placeholder="請選擇類別" no-match-text="暫無數據" @change="filterType">
           <el-option value="all" label="全部類別"></el-option>
-          <el-option
-            v-for="item in typeList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.dtValue"
-          >
+          <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
           </el-option>
         </el-select>
-        <permission-btn
-          size="mini"
-          moduleName="modulemanager"
-          v-on:btn-event="onBtnClicked"
-        ></permission-btn>
+        <permission-btn size="mini" moduleName="modulemanager" v-on:btn-event="onBtnClicked"></permission-btn>
       </div>
     </sticky>
     <div class="app-container flex-item">
       <Title title="系所成員管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
+        <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
+          <el-table-column align="center" type="selection" width="55"></el-table-column>
           <el-table-column min-width="50px" :label="'姓名'">
             <template slot-scope="scope">
               <span>{{ scope.row.name }}</span>
@@ -92,142 +62,93 @@
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-                v-if="hasButton('edit')"
-              >
+              <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">
                 編輯
               </el-button>
-              <el-button
-                size="mini"
-                type="info"
-                @click="addMemberDatas(scope.row.id)"
-              >
+              <el-button size="mini" type="info" @click="addMemberDatas(scope.row.id)">
                 新增相關資料
               </el-button>
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
+        <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleCurrentChange" />
       </div>
     </div>
 
     <!-- modal -->
     <!-- add -->
-    <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
+    <el-dialog :title="modalTitle" :visible.sync="openModal" width="50%">
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
+
+        <el-form-item size="small" :label="'管理員'" prop="managerUser">
+          <el-select v-model="temp.managerUser" class="fw" placeholder="請選擇權限" no-match-text="暫無數據">
+            <el-option v-for="item in authList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item size="small" :label="'姓名'" prop="name">
           <el-input v-model="temp.name" placeholder="請輸入姓名"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'大頭照'" prop="pic">
-          <el-upload
-            ref="imageUpload"
-            :show-file-list="false"
-            accept=".png,.jpg,.jpeg,.svg"
-            class="upload-demo"
-            action=""
-            :http-request="customUpload"
-            :limit="999"
-          >
+          <el-upload ref="imageUpload" :show-file-list="false" accept=".png,.jpg,.jpeg,.svg" class="upload-demo" action="" :http-request="customUpload" :limit="999">
             <el-button size="small" type="primary">上傳</el-button>
             <p class="m-0">{{ imgInfo.fileName }}</p>
           </el-upload>
         </el-form-item>
+
         <el-form-item size="small" :label="'頭銜'">
           <el-input v-model="temp.subName" placeholder="請輸入頭銜"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'聯絡電話'" prop="contactTel">
-          <el-input
-            v-model="temp.contactTel"
-            placeholder="請輸入聯絡電話"
-          ></el-input>
+          <el-input v-model="temp.contactTel" placeholder="請輸入聯絡電話"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'Email'" prop="email">
-          <el-input
-            v-model="temp.email"
-            placeholder="請輸入聯絡電話"
-          ></el-input>
+          <el-input v-model="temp.email" placeholder="請輸入聯絡電話"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'上班時間'">
-          <el-input
-            v-model="temp.officeHour"
-            placeholder="請輸入上班時間"
-          ></el-input>
+          <el-input v-model="temp.officeHour" placeholder="請輸入上班時間"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'傳真號碼'">
           <el-input v-model="temp.fax" placeholder="請輸入傳真號碼"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'地址'">
           <el-input v-model="temp.addr" placeholder="請輸入地址"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'類別'" prop="memberTypeId">
-          <el-select
-            v-model="temp.memberTypeId"
-            class="fw"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="getTypeName"
-          >
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
+          <el-select v-model="temp.memberTypeId" class="fw" placeholder="請選擇類別" no-match-text="暫無數據" @change="getTypeName">
+            <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
             </el-option>
           </el-select>
         </el-form-item>
+
         <el-form-item size="small" :label="'職稱'" prop="jobTitle">
-          <el-input
-            v-model="temp.jobTitle"
-            placeholder="請輸入聯絡電話"
-          ></el-input>
+          <el-input v-model="temp.jobTitle" placeholder="請輸入聯絡電話"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'授課領域'" prop="teachClass">
-          <el-input
-            type="textarea"
-            v-model="temp.teachClass"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入授課領域"
-          ></el-input>
+          <el-input type="textarea" v-model="temp.teachClass" :autosize="{ minRows: 2 }" placeholder="請輸入授課領域"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'研究專長'" prop="research">
-          <el-input
-            type="textarea"
-            v-model="temp.research"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入研究專長"
-          ></el-input>
+          <el-input type="textarea" v-model="temp.research" :autosize="{ minRows: 2 }" placeholder="請輸入研究專長"></el-input>
         </el-form-item>
+
         <el-form-item size="small" :label="'排序'">
-          <el-input
-            v-model="temp.sort"
-            placeholder="請輸入排序（預設：999）"
-          ></el-input>
+          <el-input v-model="temp.sort" placeholder="請輸入排序（預設：999）"></el-input>
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addMember"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addMember" v-if="modalTitle == '新增'">
           確認
         </el-button>
         <el-button type="primary" @click="editMember" v-else>確認</el-button>
@@ -237,8 +158,7 @@
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        <strong class="font-s-18">確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
         </strong>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -257,6 +177,7 @@ import permissionBtn from "@/components/PermissionBtn";
 import Pagination from "@/components/Pagination";
 
 import * as member from "@/api/member";
+import * as users from "@/api/users";
 import * as categorys from "@/api/categorys";
 
 export default {
@@ -277,6 +198,7 @@ export default {
       },
       temp: {
         id: "",
+        managerUser: "",
         subName: "",
         pic: "",
         name: "",
@@ -296,6 +218,7 @@ export default {
         researchUrl: "",
         sort: 999,
       },
+      authList: [],
       typeList: [],
       modalTitle: "",
       openModal: false,
@@ -304,6 +227,13 @@ export default {
       selectLIstCount: "",
       getMemberType: "all",
       rules: {
+        managerUser: [
+          {
+            required: true,
+            message: "權限不能為空",
+            trigger: "change",
+          },
+        ],
         name: [
           {
             required: true,
@@ -315,7 +245,7 @@ export default {
           {
             required: true,
             message: "類別不能為空",
-            trigger: "blur",
+            trigger: "change",
           },
         ],
         jobTitle: [
@@ -350,7 +280,18 @@ export default {
         vm.total = res.count;
       });
     },
-
+    /* 獲取最新消息類別 */
+    getAuth() {
+      const vm = this;
+      let params = {
+        roleId: "6760987204952563713",
+        page: 1,
+        limit: 999,
+      };
+      users.loadByRole(params).then((res) => {
+        vm.authList = res.data;
+      });
+    },
     /* 獲取最新消息類別 */
     getType() {
       const vm = this;
@@ -362,6 +303,7 @@ export default {
         vm.typeList = res.data;
       });
     },
+
     onBtnClicked(domId) {
       switch (domId) {
         case "add":
@@ -497,6 +439,7 @@ export default {
   mounted() {
     this.getButtons();
     this.getList();
+    this.getAuth();
     this.getType();
   },
 };

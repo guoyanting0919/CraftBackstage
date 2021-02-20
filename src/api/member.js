@@ -3,7 +3,7 @@ import request from "@/utils/request";
 // 獲取成員列表
 export function getList(params) {
     return request({
-        url: "/departmentmembers/load",
+        url: "/departmentmembers/loadAdmin",
         method: "get",
         params,
     });
