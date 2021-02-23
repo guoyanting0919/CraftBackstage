@@ -2,49 +2,19 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <el-select
-          v-model="getSysType"
-          class=""
-          placeholder="請選擇類別"
-          no-match-text="暫無數據"
-          @change="filterType"
-        >
+        <el-select v-model="getSysType" class="" placeholder="請選擇類別" no-match-text="暫無數據" @change="filterType">
           <el-option value="all" label="全部類別"></el-option>
-          <el-option
-            v-for="item in typeList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.dtValue"
-          >
+          <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
           </el-option>
         </el-select>
-        <permission-btn
-          size="mini"
-          moduleName="modulemanager"
-          v-on:btn-event="onBtnClicked"
-        ></permission-btn>
+        <permission-btn size="mini" moduleName="modulemanager" v-on:btn-event="onBtnClicked"></permission-btn>
       </div>
     </sticky>
     <div class="app-container flex-item">
       <Title title="年度學分表管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
+        <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
+          <el-table-column align="center" type="selection" width="55"></el-table-column>
           <el-table-column min-width="200" :label="'學年度'">
             <template slot-scope="scope">
               <span>{{ scope.row.fileName }}</span>
@@ -62,100 +32,38 @@
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-                v-if="hasButton('edit')"
-                >編輯</el-button
-              >
+              <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">編輯</el-button>
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
+        <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleCurrentChange" />
       </div>
     </div>
 
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'學年度'" prop="fileName">
-          <el-input
-            v-model="temp.fileName"
-            placeholder="請輸入學年度"
-          ></el-input>
+          <el-input v-model="temp.fileName" placeholder="請輸入學年度"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'類別'" prop="typeId">
-          <el-select
-            v-model="temp.typeId"
-            class="fw"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="getTypeName"
-          >
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
+          <el-select v-model="temp.typeId" class="fw" placeholder="請選擇類別" no-match-text="暫無數據" @change="getTypeName">
+            <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item size="small" :label="'檔案類型'">
-          <el-select
-            v-model="temp.linkType"
-            class="fw"
-            placeholder="請選擇類型"
-            no-match-text="暫無數據"
-          >
-            <el-option
-              v-for="item in fileTypeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.value"
-            >
+          <el-select v-model="temp.linkType" class="fw" placeholder="請選擇類型" no-match-text="暫無數據">
+            <el-option v-for="item in fileTypeList" :key="item.id" :label="item.name" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item
-          size="small"
-          :label="'檔案連結'"
-          prop="fileLink"
-          v-if="temp.linkType == 'link'"
-        >
-          <el-input
-            v-model="temp.fileLink"
-            placeholder="請輸入檔案連結"
-          ></el-input>
+        <el-form-item size="small" :label="'檔案連結'" prop="fileLink" v-if="temp.linkType == 'link'">
+          <el-input v-model="temp.fileLink" placeholder="請輸入檔案連結"></el-input>
         </el-form-item>
-        <el-form-item
-          size="small"
-          :label="'檔案上傳'"
-          v-if="temp.linkType == 'upload'"
-        >
-          <el-upload
-            ref="imageUpload"
-            :show-file-list="false"
-            accept=""
-            class="upload-demo"
-            action=""
-            :http-request="customUpload"
-            :limit="999"
-          >
+        <el-form-item size="small" :label="'檔案上傳'" v-if="temp.linkType == 'upload'">
+          <el-upload ref="imageUpload" :show-file-list="false" accept="" class="upload-demo" action="" :http-request="customUpload" :limit="999">
             <el-button size="small" type="primary">上傳</el-button>
             <p class="m-0">{{ fileInfo.fileName }}</p>
           </el-upload>
@@ -164,24 +72,17 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addDescription"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addDescription" v-if="modalTitle == '新增'">
           確認
         </el-button>
-        <el-button type="primary" @click="editDescription" v-else
-          >確認</el-button
-        >
+        <el-button type="primary" @click="editDescription" v-else>確認</el-button>
       </span>
     </el-dialog>
 
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        <strong class="font-s-18">確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
         </strong>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -362,7 +263,8 @@ export default {
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
           vm.fileInfo = response.data.result[0];
-          vm.temp.fileLink = "http://140.131.21.65/" + vm.fileInfo.filePath;
+          vm.temp.fileLink =
+            "https://crafts.ntua.edu.tw/api/" + vm.fileInfo.filePath;
         })
         .catch((error) => {
           console.log({ error });

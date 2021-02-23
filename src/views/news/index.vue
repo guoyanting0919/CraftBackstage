@@ -287,7 +287,7 @@ export default {
           let getFile = {
             id: vm.fileInfo.id,
             fileName: vm.fileInfo.fileName,
-            files: "http://140.131.21.65/" + vm.fileInfo.filePath,
+            files: "https://crafts.ntua.edu.tw/api/" + vm.fileInfo.filePath,
           };
           vm.groupFile.push(getFile);
           vm.temp.attachedFile = JSON.stringify(vm.groupFile);

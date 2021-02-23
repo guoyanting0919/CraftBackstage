@@ -417,7 +417,7 @@ export default {
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
           vm.imgInfo = response.data.result[0];
-          vm.temp.pic = "http://140.131.21.65/" + vm.imgInfo.filePath;
+          vm.temp.pic = "https://crafts.ntua.edu.tw/api/" + vm.imgInfo.filePath;
         })
         .catch((error) => {
           console.log({ error });

@@ -2,51 +2,19 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <permission-btn
-          size="mini"
-          moduleName="modulemanager"
-          v-on:btn-event="onBtnClicked"
-        ></permission-btn>
+        <permission-btn size="mini" moduleName="modulemanager" v-on:btn-event="onBtnClicked"></permission-btn>
       </div>
     </sticky>
     <div class="app-container flex-item">
       <Title title="學制地圖管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
+        <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
+          <el-table-column align="center" type="selection" width="55"></el-table-column>
           <el-table-column min-width="300" :label="'檔案連結'" align="center">
             <template slot-scope="scope">
-              <el-tooltip
-                class="item"
-                effect="dark"
-                content="查看檔案"
-                placement="bottom"
-              >
-                <a
-                  :href="scope.row.fileLink"
-                  :download="scope.row.fileLink"
-                  target="_blank"
-                >
-                  <img
-                    src="@/assets/images/link.svg"
-                    alt="查看檔案"
-                    width="30px"
-                  />
+              <el-tooltip class="item" effect="dark" content="查看檔案" placement="bottom">
+                <a :href="scope.row.fileLink" :download="scope.row.fileLink" target="_blank">
+                  <img src="@/assets/images/link.svg" alt="查看檔案" width="30px" />
                 </a>
               </el-tooltip>
             </template>
@@ -58,46 +26,20 @@
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-                v-if="hasButton('edit')"
-                >編輯</el-button
-              >
+              <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">編輯</el-button>
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
+        <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleCurrentChange" />
       </div>
     </div>
 
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'檔案上傳'" prop="fileLink">
-          <el-upload
-            ref="imageUpload"
-            :show-file-list="false"
-            accept=""
-            class="upload-demo"
-            action=""
-            :http-request="customUpload"
-            :limit="999"
-          >
+          <el-upload ref="imageUpload" :show-file-list="false" accept="" class="upload-demo" action="" :http-request="customUpload" :limit="999">
             <el-button size="small" type="primary">上傳</el-button>
             <p class="m-0">{{ fileInfo.fileName }}</p>
           </el-upload>
@@ -106,11 +48,7 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addEduMap"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addEduMap" v-if="modalTitle == '新增'">
           確認
         </el-button>
         <el-button type="primary" @click="editEduMap" v-else>確認</el-button>
@@ -120,8 +58,7 @@
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        <strong class="font-s-18">確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
         </strong>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -267,7 +204,8 @@ export default {
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
           vm.fileInfo = response.data.result[0];
-          vm.temp.fileLink = "http://140.131.21.65/" + vm.fileInfo.filePath;
+          vm.temp.fileLink =
+            "https://crafts.ntua.edu.tw/api/" + vm.fileInfo.filePath;
         })
         .catch((error) => {
           console.log({ error });

@@ -17,20 +17,9 @@
       <Title :title="'新增圖片（' + albumTitle + '）'"></Title>
       <div class="bg-white">
         <el-row class="p-20">
-          <el-col
-            class="p-20"
-            :lg="8"
-            :md="12"
-            :sm="24"
-            v-for="item in list"
-            :key="item.id"
-          >
+          <el-col class="p-20" :lg="8" :md="12" :sm="24" v-for="item in list" :key="item.id">
             <el-card :body-style="{ padding: '0px' }">
-              <el-image
-                style="width: 100%; height: 400px"
-                :src="item.links"
-                fit="cover"
-              ></el-image>
+              <el-image style="width: 100%; height: 400px" :src="item.links" fit="cover"></el-image>
               <div class="fw">
                 <div class="px-16 pt-16">
                   <strong class="font-s-18">{{ item.description }}</strong>
@@ -42,18 +31,10 @@
                 </a>
                 <p class="m-0" v-else>目前封面</p>
                 <div>
-                  <el-button
-                    size="mini"
-                    type="warning"
-                    @click="handleEdit(item)"
-                    plain
-                  >
+                  <el-button size="mini" type="warning" @click="handleEdit(item)" plain>
                     編輯
                   </el-button>
-                  <span
-                    class="iconfont icon-garbage featuresBox__del ml-10 font-s-18"
-                    @click="handleDel(item)"
-                  ></span>
+                  <span class="iconfont icon-garbage featuresBox__del ml-10 font-s-18" @click="handleDel(item)"></span>
                 </div>
               </div>
             </el-card>
@@ -65,48 +46,24 @@
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'名稱'" prop="description">
-          <el-input
-            v-model="temp.description"
-            placeholder="請輸入名稱"
-          ></el-input>
+          <el-input v-model="temp.description" placeholder="請輸入名稱"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'圖片'" prop="links">
-          <el-upload
-            ref="imageUpload"
-            :show-file-list="false"
-            accept=".png,.jpg,.jpeg,.svg"
-            class="upload-demo"
-            action=""
-            :http-request="customUpload"
-            :limit="999"
-          >
+          <el-upload ref="imageUpload" :show-file-list="false" accept=".png,.jpg,.jpeg,.svg" class="upload-demo" action="" :http-request="customUpload" :limit="999">
             <el-button size="small" type="primary">上傳</el-button>
             <p class="m-0">{{ imgInfo.fileName }}</p>
           </el-upload>
         </el-form-item>
         <el-form-item size="small" :label="'排序'" prop="sort">
-          <el-input
-            v-model="temp.sort"
-            placeholder="請輸入排序（預設：999）"
-          ></el-input>
+          <el-input v-model="temp.sort" placeholder="請輸入排序（預設：999）"></el-input>
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addAlbumPic"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addAlbumPic" v-if="modalTitle == '新增'">
           確認
         </el-button>
         <el-button type="primary" @click="editAlbumPic" v-else>確認</el-button>
@@ -226,7 +183,8 @@ export default {
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
           vm.imgInfo = response.data.result[0];
-          vm.temp.links = "http://140.131.21.65/" + vm.imgInfo.filePath;
+          vm.temp.links =
+            "https://crafts.ntua.edu.tw/api/" + vm.imgInfo.filePath;
         })
         .catch((error) => {
           console.log({ error });
