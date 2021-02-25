@@ -20,7 +20,7 @@
               <span>{{ scope.row.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="100px" :label="'大頭照'">
+          <el-table-column min-width="150px" :label="'大頭照'">
             <template slot-scope="scope">
               <img :src="scope.row.pic" alt="" width="150px" />
             </template>
@@ -35,12 +35,12 @@
               <span>{{ scope.row.email }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="50px" :label="'類別'">
+          <el-table-column min-width="80px" :label="'類別'">
             <template slot-scope="scope">
               <span>{{ scope.row.memberTypeName }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="50px" :label="'職稱'">
+          <el-table-column min-width="60px" :label="'職稱'">
             <template slot-scope="scope">
               <span>{{ scope.row.jobTitle }}</span>
             </template>
@@ -55,12 +55,12 @@
               <span>{{ scope.row.research }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="30px" :label="'排序'">
+          <!-- <el-table-column min-width="30px" :label="'排序'">
             <template slot-scope="scope">
               <span>{{ scope.row.sort }}</span>
             </template>
-          </el-table-column>
-          <el-table-column property="setting" label="操作" width="220">
+          </el-table-column> -->
+          <el-table-column property="setting" label="操作" width="200">
             <template slot-scope="scope">
               <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">
                 編輯
