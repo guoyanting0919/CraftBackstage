@@ -141,6 +141,18 @@
           <el-input type="textarea" v-model="temp.research" :autosize="{ minRows: 2 }" placeholder="請輸入研究專長"></el-input>
         </el-form-item>
 
+        <el-form-item size="small" :label="'個人網站'">
+          <el-input v-model="temp.webUrl" placeholder="請輸入個人網站連結"></el-input>
+        </el-form-item>
+
+        <el-form-item size="small" :label="'個人著作'">
+          <el-input v-model="temp.bookUrl" placeholder="請輸入個人著作連結"></el-input>
+        </el-form-item>
+
+        <el-form-item size="small" :label="'個人研究'">
+          <el-input v-model="temp.researchUrl" placeholder="請輸入個人研究連結"></el-input>
+        </el-form-item>
+
         <el-form-item size="small" :label="'排序'">
           <el-input v-model="temp.sort" placeholder="請輸入排序（預設：999）"></el-input>
         </el-form-item>

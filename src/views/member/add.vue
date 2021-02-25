@@ -42,7 +42,7 @@
               <span>{{ scope.row.joinMember }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="100px" :label="'擔任之工作'">
+          <el-table-column min-width="100px" :label="'擔任之職務'">
             <template slot-scope="scope">
               <span>{{ scope.row.jobTitle }}</span>
             </template>
@@ -107,8 +107,8 @@
               <el-input v-model="temp.joinMember" placeholder="請輸入參與人"></el-input>
             </el-form-item>
             <!-- jobTitle -->
-            <el-form-item size="small" :label="'擔任之工作'" v-if="check('職稱')">
-              <el-input v-model="temp.jobTitle" placeholder="請輸入擔任之工作"></el-input>
+            <el-form-item size="small" :label="'擔任之職務'" v-if="check('職稱')">
+              <el-input v-model="temp.jobTitle" placeholder="請輸入擔任之職務"></el-input>
             </el-form-item>
             <!-- mechanismName -->
             <el-form-item size="small" :label="specialName()" v-if="check('機構')">
@@ -116,7 +116,7 @@
             </el-form-item>
             <!-- startDate -->
             <el-form-item size="small" :label="'開始時間'" prop="startDate">
-              <el-date-picker class="fw" v-model="temp.startDate" type="date" value-format="yyyy-MM-dd" placeholder="請選擇日期">
+              <el-date-picker class="fw" v-model="temp.startDate" type="date" value-format="yyyy-MM-dd" placeholder="請選擇日期" :picker-options="disBeforeTime">
               </el-date-picker>
             </el-form-item>
             <!-- endDate -->
@@ -219,7 +219,7 @@ export default {
           {
             required: true,
             message: "開始日期不能為空",
-            trigger: "blur",
+            trigger: "change",
           },
         ],
       },
@@ -246,6 +246,11 @@ export default {
         SYS_MEMBERDATA_EDUCATION: ["機構", "系所", "職稱"],
         // 經歷
         SYS_MEMBERDATA_EXP: ["機構", "職稱"],
+      },
+      disBeforeTime: {
+        disabledDate(date) {
+          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+        },
       },
     };
   },
@@ -310,6 +315,7 @@ export default {
       this.openModal = true;
     },
     handleEdit(data) {
+      this.temp.dataTypeId = data.dataTypeId;
       departmentMemberDatas
         .getDepartmentMemberDatas({ id: data.id })
         .then((res) => {
@@ -366,7 +372,10 @@ export default {
     editMemberData() {
       const vm = this;
       vm.temp.sort = vm.temp.sort ? vm.temp.sort : 999;
-      vm.$refs["dataForm"].validate((valid) => {
+      const dom = `dataForm${vm.temp.dataTypeId}`;
+
+      vm.$refs[dom][0].validate((valid) => {
+        // vm.$refs["dataForm"].validate((valid) => {
         if (valid) {
           departmentMemberDatas
             .updateDepartmentMemberDatas(vm.temp)
