@@ -116,7 +116,7 @@
             </el-form-item>
             <!-- startDate -->
             <el-form-item size="small" :label="'開始時間'" prop="startDate">
-              <el-date-picker class="fw" v-model="temp.startDate" type="date" value-format="yyyy-MM-dd" placeholder="請選擇日期" :picker-options="disBeforeTime">
+              <el-date-picker class="fw" v-model="temp.startDate" type="date" value-format="yyyy-MM-dd" placeholder="請選擇日期">
               </el-date-picker>
             </el-form-item>
             <!-- endDate -->
@@ -246,11 +246,6 @@ export default {
         SYS_MEMBERDATA_EDUCATION: ["機構", "系所", "職稱"],
         // 經歷
         SYS_MEMBERDATA_EXP: ["機構", "職稱"],
-      },
-      disBeforeTime: {
-        disabledDate(date) {
-          return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
-        },
       },
     };
   },
