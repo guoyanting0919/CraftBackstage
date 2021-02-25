@@ -2,33 +2,14 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <permission-btn
-          size="mini"
-          moduleName="modulemanager"
-          v-on:btn-event="onBtnClicked"
-        ></permission-btn>
+        <permission-btn size="mini" moduleName="modulemanager" v-on:btn-event="onBtnClicked"></permission-btn>
       </div>
     </sticky>
     <div class="app-container flex-item">
       <Title title="研究發表管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
+        <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
+          <el-table-column align="center" type="selection" width="55"></el-table-column>
           <el-table-column min-width="100px" :label="'公告日期'">
             <template slot-scope="scope">
               <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
@@ -51,76 +32,31 @@
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-                v-if="hasButton('edit')"
-                >編輯</el-button
-              >
+              <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">編輯</el-button>
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
+        <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleCurrentChange" />
       </div>
     </div>
 
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'公告日期'" prop="releaseDate">
-          <el-date-picker
-            class="fw"
-            v-model="temp.releaseDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            :picker-options="disBeforeTime"
-            placeholder="請選擇日期"
-          >
+          <el-date-picker class="fw" v-model="temp.releaseDate" type="date" value-format="yyyy-MM-dd" :picker-options="disBeforeTime" placeholder="請選擇日期">
           </el-date-picker>
         </el-form-item>
         <el-form-item size="small" :label="'標籤類型'" prop="titleType">
-          <el-input
-            v-model="temp.titleType"
-            placeholder="請輸入標籤類型"
-          ></el-input>
+          <el-input v-model="temp.titleType" placeholder="請輸入標籤類型"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'著作'" prop="contents">
-          <el-input
-            type="textarea"
-            v-model="temp.contents"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入內容"
-          ></el-input>
+          <el-input type="textarea" v-model="temp.contents" :autosize="{ minRows: 2 }" placeholder="請輸入內容"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'著作人'" prop="author">
-          <el-select
-            class="fw"
-            v-model="temp.title"
-            filterable
-            clearable
-            placeholder="請選擇或輸入著作人"
-            @change="getMember"
-          >
-            <el-option
-              v-for="item in memberList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            >
+          <el-select class="fw" v-model="temp.title" filterable clearable placeholder="請選擇或輸入著作人" @change="getMember">
+            <el-option v-for="item in memberList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -138,8 +74,7 @@
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        <strong class="font-s-18">確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
         </strong>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -302,7 +237,11 @@ export default {
       this.selectListId = data.map((res) => res.id);
       this.selectLIstCount = data.length;
     },
-    handleCurrentChange() {},
+    handleCurrentChange(val) {
+      this.listQuery.page = val.page;
+      this.listQuery.limit = val.limit;
+      this.getList();
+    },
     getMember(val) {
       if (val) {
         let filterMember = this.memberList.filter((res) => {

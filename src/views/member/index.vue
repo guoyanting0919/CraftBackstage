@@ -357,7 +357,11 @@ export default {
       this.selectListId = data.map((res) => res.id);
       this.selectLIstCount = data.length;
     },
-    handleCurrentChange() {},
+    handleCurrentChange(val) {
+      this.listQuery.page = val.page;
+      this.listQuery.limit = val.limit;
+      this.getList();
+    },
     getTypeName(typeId) {
       const vm = this;
       vm.typeList.filter((item) => {

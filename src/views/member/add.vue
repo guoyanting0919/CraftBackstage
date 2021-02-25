@@ -27,7 +27,7 @@
       <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
           <el-table-column align="center" type="selection" width="55"></el-table-column>
-          <el-table-column min-width="300px" :label="'標題'">
+          <el-table-column min-width="180px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
             </template>
@@ -37,21 +37,21 @@
               <span>{{ scope.row.year }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="80px" :label="'參與人'">
+          <!-- <el-table-column min-width="80px" :label="'參與人'">
             <template slot-scope="scope">
               <span>{{ scope.row.joinMember }}</span>
             </template>
-          </el-table-column>
-          <el-table-column min-width="100px" :label="'擔任之職務'">
+          </el-table-column> -->
+          <el-table-column min-width="250px" :label="'擔任之職務'">
             <template slot-scope="scope">
               <span>{{ scope.row.jobTitle }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="150px" :label="'連結'">
+          <!-- <el-table-column min-width="150px" :label="'連結'">
             <template slot-scope="scope">
               <span>{{ scope.row.links }}</span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column min-width="100px" :label="'開始日期'">
             <template slot-scope="scope">
               <span>{{ scope.row.startDate | moment("YYYY-MM-DD") }}</span>
@@ -62,11 +62,11 @@
               <span>{{ scope.row.dataTypeName }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="50px" :label="'排序'">
+          <!-- <el-table-column min-width="50px" :label="'排序'">
             <template slot-scope="scope">
               <span>{{ scope.row.sort }}</span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
               <el-button size="mini" type="warning" @click="handleEdit(scope.row)">
@@ -107,7 +107,7 @@
               <el-input v-model="temp.joinMember" placeholder="請輸入參與人"></el-input>
             </el-form-item>
             <!-- jobTitle -->
-            <el-form-item size="small" :label="'擔任之職務'" v-if="check('職稱')">
+            <el-form-item size="small" :label="temp.dataTypeId == 'SYS_MEMBERDATA_EDUCATION'? '系所' : '擔任之職務'" v-if="check('職稱')">
               <el-input v-model="temp.jobTitle" placeholder="請輸入擔任之職務"></el-input>
             </el-form-item>
             <!-- mechanismName -->
@@ -241,7 +241,7 @@ export default {
         // 校內
         SYS_MEMBERDATA_SCHOOLHONOR: ["年度", "機構"],
         // 校外
-        SYS_MEMBERDATA_OFFCAMPUSHONOR: ["年度"],
+        SYS_MEMBERDATA_OFFCAMPUSHONOR: ["年度", "機構"],
         // 學歷
         SYS_MEMBERDATA_EDUCATION: ["機構", "系所", "職稱"],
         // 經歷
@@ -338,7 +338,11 @@ export default {
       this.selectListId = data.map((res) => res.id);
       this.selectLIstCount = data.length;
     },
-    handleCurrentChange() {},
+    handleCurrentChange(val) {
+      this.listQuery.page = val.page;
+      this.listQuery.limit = val.limit;
+      this.getList();
+    },
     addMemberData() {
       const vm = this;
       vm.temp.memberId = this.$route.params.id;

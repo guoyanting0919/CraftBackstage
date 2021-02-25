@@ -2,64 +2,24 @@
   <div class="flex-column">
     <sticky :className="'sub-navbar'">
       <div class="filter-container">
-        <el-select
-          class="mr-10"
-          v-model="getBlockVal"
-          placeholder="請選擇區塊"
-          no-match-text="暫無數據"
-          @change="filterBlock"
-        >
+        <el-select class="mr-10" v-model="getBlockVal" placeholder="請選擇區塊" no-match-text="暫無數據" @change="filterBlock">
           <el-option value="all" label="全部區塊"></el-option>
-          <el-option
-            v-for="item in blockList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.dtValue"
-          >
+          <el-option v-for="item in blockList" :key="item.id" :label="item.name" :value="item.dtValue">
           </el-option>
         </el-select>
-        <el-select
-          v-model="getTypeVal"
-          placeholder="請選擇類別"
-          no-match-text="暫無數據"
-          @change="filterType"
-        >
+        <el-select v-model="getTypeVal" placeholder="請選擇類別" no-match-text="暫無數據" @change="filterType">
           <el-option value="all" label="全部類別"></el-option>
-          <el-option
-            v-for="item in typeList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.dtValue"
-          >
+          <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
           </el-option>
         </el-select>
-        <permission-btn
-          size="mini"
-          moduleName="modulemanager"
-          v-on:btn-event="onBtnClicked"
-        ></permission-btn>
+        <permission-btn size="mini" moduleName="modulemanager" v-on:btn-event="onBtnClicked"></permission-btn>
       </div>
     </sticky>
     <div class="app-container flex-item">
       <Title title="四大工坊管理"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
-        <el-table
-          ref="mainTable"
-          :data="list"
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          style="width: 100%"
-          height="calc(100% - 52px)"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            align="center"
-            type="selection"
-            width="55"
-          ></el-table-column>
+        <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
+          <el-table-column align="center" type="selection" width="55"></el-table-column>
           <el-table-column min-width="100px" :label="'標題'">
             <template slot-scope="scope">
               <span>{{ scope.row.title }}</span>
@@ -87,111 +47,57 @@
           </el-table-column>
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="warning"
-                @click="handleEdit(scope.row)"
-                v-if="hasButton('edit')"
-              >
+              <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">
                 編輯
               </el-button>
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="listQuery.page"
-          :limit.sync="listQuery.limit"
-          @pagination="handleCurrentChange"
-        />
+        <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleCurrentChange" />
       </div>
     </div>
 
     <!-- modal -->
     <!-- add -->
     <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
-      <el-form
-        :rules="rules"
-        ref="dataForm"
-        :model="temp"
-        label-position="right"
-        label-width="100px"
-      >
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'標題'" prop="title">
           <el-input v-model="temp.title" placeholder="請輸入標題"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'內容'" prop="summary">
-          <el-input
-            type="textarea"
-            v-model="temp.summary"
-            :autosize="{ minRows: 2 }"
-            placeholder="請輸入內容"
-          ></el-input>
+          <el-input type="textarea" v-model="temp.summary" :autosize="{ minRows: 2 }" placeholder="請輸入內容"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'區塊'" prop="roomTypeId">
-          <el-select
-            v-model="temp.roomTypeId"
-            class="fw"
-            placeholder="請選擇區塊"
-            no-match-text="暫無數據"
-            @change="getBlockName"
-          >
-            <el-option
-              v-for="item in blockList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
+          <el-select v-model="temp.roomTypeId" class="fw" placeholder="請選擇區塊" no-match-text="暫無數據" @change="getBlockName">
+            <el-option v-for="item in blockList" :key="item.id" :label="item.name" :value="item.dtValue">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item size="small" :label="'類別'" prop="dataTypeId">
-          <el-select
-            v-model="temp.dataTypeId"
-            class="fw"
-            placeholder="請選擇類別"
-            no-match-text="暫無數據"
-            @change="getTypeName"
-          >
-            <el-option
-              v-for="item in typeList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.dtValue"
-            >
+          <el-select v-model="temp.dataTypeId" class="fw" placeholder="請選擇類別" no-match-text="暫無數據" @change="getTypeName">
+            <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
             </el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item size="small" :label="'排序'">
-          <el-input
-            v-model="temp.sort"
-            placeholder="請輸入排序（預設：999）"
-          ></el-input>
+          <el-input v-model="temp.sort" placeholder="請輸入排序（預設：999）"></el-input>
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="openModal = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addClassRooms"
-          v-if="modalTitle == '新增'"
-        >
+        <el-button type="primary" @click="addClassRooms" v-if="modalTitle == '新增'">
           確認
         </el-button>
-        <el-button type="primary" @click="editClassRooms" v-else
-          >確認</el-button
-        >
+        <el-button type="primary" @click="editClassRooms" v-else>確認</el-button>
       </span>
     </el-dialog>
 
     <!-- delete -->
     <el-dialog title="刪除" :visible.sync="delModal" width="20%">
       <div class="fw">
-        <strong class="font-s-18"
-          >確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
+        <strong class="font-s-18">確定要刪除這 {{ selectLIstCount }}筆 資料嗎？
         </strong>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -340,7 +246,11 @@ export default {
       this.selectListId = data.map((res) => res.id);
       this.selectLIstCount = data.length;
     },
-    handleCurrentChange() {},
+    handleCurrentChange(val) {
+      this.listQuery.page = val.page;
+      this.listQuery.limit = val.limit;
+      this.getList();
+    },
     getBlockName(typeId) {
       const vm = this;
       vm.blockList.filter((item) => {
