@@ -311,7 +311,7 @@ export default {
         TypeId: "SYS_MEMBER",
         limit: 999,
       };
-      categorys.getList(params).then((res) => {
+      categorys.LoadNoProperty(params).then((res) => {
         vm.typeList = res.data;
       });
     },

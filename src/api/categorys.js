@@ -7,6 +7,14 @@ export function getList(params) {
     params
   })
 }
+
+export function LoadNoProperty(params) {
+  return request({
+    url: '/categorys/LoadNoProperty',
+    method: 'get',
+    params
+  })
+}
  
 export function loadForRole(roleId) {
   return request({
