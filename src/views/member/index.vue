@@ -7,7 +7,7 @@
           <el-option v-for="item in typeList" :key="item.id" :label="item.name" :value="item.dtValue">
           </el-option>
         </el-select>
-        <permission-btn size="mini" moduleName="modulemanager" v-on:btn-event="onBtnClicked"></permission-btn>
+        <permission-btn size="mini" moduleName="modulemanager" v-on:btn-event="onBtnClicked" v-if="hasButton('add')"></permission-btn>
       </div>
     </sticky>
     <div class="app-container flex-item">
@@ -281,7 +281,13 @@ export default {
 
     /* 是否擁有按鈕功能權限 */
     hasButton(domId) {
-      return this.buttons.includes(domId);
+      if (this.list.length > 1 || domId == "edit") {
+        return this.buttons.includes(domId);
+      } else {
+        return false
+      }
+      // console.log(this.list.length > 1, this.buttons.includes(domId));
+      // return this.list.length > 1 && this.buttons.includes(domId);
     },
 
     /* 獲取資料 */
