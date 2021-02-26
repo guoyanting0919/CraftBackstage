@@ -284,7 +284,7 @@ export default {
       return this.buttons.includes(domId);
     },
 
-    /* 獲取成員資料 */
+    /* 獲取資料 */
     getList() {
       const vm = this;
       member.getList(vm.listQuery).then((res) => {
@@ -292,7 +292,7 @@ export default {
         vm.total = res.count;
       });
     },
-    /* 獲取最新消息類別 */
+    /* 獲取類別 */
     getAuth() {
       const vm = this;
       let params = {
@@ -304,7 +304,7 @@ export default {
         vm.authList = res.data;
       });
     },
-    /* 獲取最新消息類別 */
+    /* 獲取類別 */
     getType() {
       const vm = this;
       let params = {

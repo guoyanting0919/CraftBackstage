@@ -23,7 +23,7 @@
       </div>
     </sticky>
     <div class="app-container flex-item">
-      <Title title="新增成員相關資料"></Title>
+      <Title :title="'新增『' + memberName + '』相關資料'"></Title>
       <div class="bg-white" style="height: calc(100% - 50px)">
         <el-table ref="mainTable" :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 100%" height="calc(100% - 52px)" @row-click="rowClick" @selection-change="handleSelectionChange">
           <el-table-column align="center" type="selection" width="55"></el-table-column>
@@ -164,6 +164,7 @@ import Sticky from "@/components/Sticky";
 import Title from "@/components/ConsoleTableTitle";
 import Pagination from "@/components/Pagination";
 
+import * as member from "@/api/member";
 import * as departmentMemberDatas from "@/api/departmentMemberDatas";
 import * as categorys from "@/api/categorys";
 
@@ -174,6 +175,7 @@ export default {
     return {
       list: [], // 菜單列表
       typeList: [],
+      memberName: "",
       total: 10,
       getMemberType: "all",
       listLoading: false,
@@ -275,7 +277,18 @@ export default {
     check(str) {
       return this.mapping[this.temp.dataTypeId]?.includes(str);
     },
-    /* 獲取成員資料 */
+    /* 獲取資料 */
+    getMember() {
+      const listQuery = {
+        MemberTypeId: "",
+        page: 1,
+        limit: 20,
+        key: undefined,
+      }
+      member.getList(listQuery).then((res) => {
+        this.memberName = res.data[0].name;
+      });
+    },
     getList() {
       const vm = this;
       departmentMemberDatas.getList(vm.listQuery).then((res) => {
@@ -289,7 +302,7 @@ export default {
         TypeId: "SYS_MEMBERDATA",
         limit: 999,
       };
-      categorys.getList(params).then((res) => {
+      categorys.LoadNoProperty(params).then((res) => {
         vm.typeList = res.data;
       });
     },
@@ -426,6 +439,7 @@ export default {
   mounted() {
     this.getList();
     this.getType();
+    this.getMember();
   },
 };
 </script>
