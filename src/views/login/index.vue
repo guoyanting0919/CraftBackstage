@@ -4,7 +4,7 @@
       <!-- loginTitle -->
       <div class="loginTitle">
         <h1 class="cityTitle">
-          -{{ title }}<a style="cursor: default" @click="loginBy('System', '123456')">-</a>
+          -{{ title }}-
         </h1>
         <!-- <h5 class="cityDescrip" @click="loginBy('r')">
           長照交通接送統一預約服務及管理系統
