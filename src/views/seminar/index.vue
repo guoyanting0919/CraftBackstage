@@ -125,6 +125,16 @@
           <ckeditor class="modalCKContent" :value="temp_seminar.contents" v-model="temp_seminar.contents" />
           <!-- <vue-editor v-model="temp_seminar.contents" /> -->
         </el-form-item>
+        <el-form-item size="small" :label="'檔案上傳'" prop="attachedFile">
+          <el-upload ref="imageUpload" :show-file-list="false" accept="" class="upload-demo" action="" :http-request="customUpload_seminar" :limit="999">
+            <el-button size="small" type="primary">上傳</el-button>
+          </el-upload>
+          <div class="fw flex-row">
+            <p class="m-0 pr-10" v-for="item in groupFile_seminar" :key="item.id">
+              {{ item.fileName }}
+            </p>
+          </div>
+        </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -182,6 +192,7 @@ export default {
       temp_seminar: {
         id: "",
         contents: "",
+        attachedFile: "",
       },
       tabData: [
         { id: 1, label: "最新消息", value: "news" },
@@ -232,7 +243,9 @@ export default {
       selectListId: [],
       selectLIstCount: "",
       groupFile: [],
+      groupFile_seminar: [],
       fileInfo: {},
+      fileInfo_seminar: {},
       disBeforeTime: {
         disabledDate(date) {
           return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
@@ -339,6 +352,27 @@ export default {
           console.log({ error });
         });
     },
+    customUpload_seminar(file) {
+      const vm = this;
+      let formData = new FormData();
+      formData.append("files", file.file, file.file.name);
+      axios
+        .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
+        .then((response) => {
+          vm.fileInfo_seminar = response.data.result[0];
+          let getFile = {
+            id: vm.fileInfo_seminar.id,
+            fileName: vm.fileInfo_seminar.fileName,
+            files:
+              "https://crafts.ntua.edu.tw/api/" + vm.fileInfo_seminar.filePath,
+          };
+          vm.groupFile_seminar.push(getFile);
+          vm.temp_seminar.attachedFile = JSON.stringify(vm.groupFile_seminar);
+        })
+        .catch((error) => {
+          console.log({ error });
+        });
+    },
 
     /* 新增、修改、刪除 最新消息 */
     addNews() {
@@ -399,6 +433,7 @@ export default {
     /*  */
     editSeminar() {
       const vm = this;
+      // console.log(vm.temp_seminar);
       vm.$refs["dataForm_seminar"].validate((valid) => {
         if (valid) {
           seminarWorks.updateSeminarWorks(vm.temp_seminar).then((res) => {
@@ -463,22 +498,9 @@ export default {
 
     .CkContent {
       background-color: #2d2d2d;
-      padding: 2rem 0;
+      padding: 1.5rem;
       min-height: calc(100vh - 210px);
     }
-
-    // .disEditor {
-    //   .cke {
-    //     &_contents {
-    //       min-height: calc(100vh - 210px);
-    //     }
-
-    //     &_top,
-    //     &_bottom {
-    //       display: none !important;
-    //     }
-    //   }
-    // }
   }
 }
 </style>

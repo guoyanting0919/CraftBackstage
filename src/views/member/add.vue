@@ -286,7 +286,8 @@ export default {
         key: undefined,
       }
       member.getList(listQuery).then((res) => {
-        this.memberName = res.data[0].name;
+        const getMemberInfo = res.data.filter(resp => resp.id === this.$route.params.id);
+        this.memberName = getMemberInfo[0]?.name;
       });
     },
     getList() {

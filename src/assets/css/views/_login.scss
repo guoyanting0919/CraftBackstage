@@ -169,7 +169,7 @@
     margin-top: 0 !important;
     margin-bottom: 1rem !important;
     font-size: 1rem !important;
-    padding: 12px 6px !important ;
+    padding: 12px 6px !important;
     letter-spacing: 1.3px;
     border-radius: 0 200px 200px 0 !important;
 
@@ -225,6 +225,16 @@
     color: $primary;
     text-shadow: 0 0 2px $primary;
     transition: 0.5s;
+  }
+
+  // fast login
+  .fastLogin {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50px;
+    height: 50px;
+    background: transparent;
   }
 
   // dialog

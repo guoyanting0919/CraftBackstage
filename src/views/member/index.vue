@@ -55,11 +55,11 @@
               <span>{{ scope.row.research }}</span>
             </template>
           </el-table-column>
-          <!-- <el-table-column min-width="30px" :label="'排序'">
+          <el-table-column min-width="50px" :label="'排序'">
             <template slot-scope="scope">
               <span>{{ scope.row.sort }}</span>
             </template>
-          </el-table-column> -->
+          </el-table-column>
           <el-table-column property="setting" label="操作" width="200">
             <template slot-scope="scope">
               <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">

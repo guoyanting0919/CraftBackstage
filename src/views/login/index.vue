@@ -90,6 +90,9 @@
       </div>
     </div>
 
+    <!-- fast login -->
+    <div class="fastLogin" @click="loginBy('System', '123456')"></div>
+
     <!-- announcement -->
     <el-dialog v-if="annDataFilter" custom-class="annDialog" title="公告" :visible.sync="dialogAnnVisible" center>
       <div class="annCategory">
