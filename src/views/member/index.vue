@@ -205,7 +205,7 @@ export default {
       listQuery: {
         MemberTypeId: "",
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       temp: {
@@ -284,7 +284,7 @@ export default {
       if (this.list.length > 1 || domId == "edit") {
         return this.buttons.includes(domId);
       } else {
-        return false
+        return false;
       }
       // console.log(this.list.length > 1, this.buttons.includes(domId));
       // return this.list.length > 1 && this.buttons.includes(domId);

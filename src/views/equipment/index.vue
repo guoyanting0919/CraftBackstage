@@ -105,7 +105,7 @@ export default {
       listLoading: false,
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       temp: {

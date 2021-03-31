@@ -152,7 +152,7 @@ export default {
       listQuery: {
         AlbumId: this.$route.params.id,
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       temp: {

@@ -110,7 +110,7 @@ export default {
         TypeId: "SYS_ACTALBUM_ACTIVITY",
         Years: "",
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       temp: {

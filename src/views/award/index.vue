@@ -108,7 +108,7 @@ export default {
       listQuery: {
         teachTypeId: "SYS_TEACH_COMPETITION",
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       temp: {

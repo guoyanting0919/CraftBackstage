@@ -91,7 +91,7 @@ export default {
       listQuery: {
         TypeId: "SYS_SINGLEFILE_MAP",
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       temp: {

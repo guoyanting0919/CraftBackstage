@@ -183,7 +183,7 @@ export default {
         MemberId: this.$route.params.id,
         DataTypeId: "",
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       temp: {
@@ -282,11 +282,13 @@ export default {
       const listQuery = {
         MemberTypeId: "",
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
-      }
+      };
       member.getList(listQuery).then((res) => {
-        const getMemberInfo = res.data.filter(resp => resp.id === this.$route.params.id);
+        const getMemberInfo = res.data.filter(
+          (resp) => resp.id === this.$route.params.id
+        );
         this.memberName = getMemberInfo[0]?.name;
       });
     },

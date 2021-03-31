@@ -109,7 +109,7 @@ export default {
       listQuery: {
         teachTypeId: "SYS_TEACH_4C",
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       temp: {

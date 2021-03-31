@@ -108,13 +108,13 @@ export default {
       listQuery: {
         teachTypeId: "SYS_TEACH_RESEARCHPUBLIC",
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       memberListQuery: {
         MemberTypeId: "",
         page: 1,
-        limit: 20,
+        limit: 999,
         key: undefined,
       },
       temp: {
