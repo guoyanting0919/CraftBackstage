@@ -22,7 +22,8 @@
           </el-table-column>
           <el-table-column min-width="150px" :label="'大頭照'">
             <template slot-scope="scope">
-              <img :src="scope.row.pic" alt="" width="150px" />
+              <el-image style="width: 150px; height: 200px" :src="scope.row.pic" :alt="scope.row.name" fit="cover"></el-image>
+              <!-- <img :src="scope.row.pic" alt="" width="150px" /> -->
             </template>
           </el-table-column>
           <el-table-column min-width="80px" :label="'聯絡電話'">

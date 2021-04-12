@@ -20,7 +20,7 @@
           <el-col class="p-20" :lg="8" :md="12" :sm="24" v-for="item in list" :key="item.id">
             <el-card :body-style="{ padding: '0px' }">
               <el-image style="width: 100%; height: 400px" :src="item.pic" fit="cover"></el-image>
-              <div class="p-16">
+              <div class="p-16 featuresBox__title">
                 <strong>{{ item.title }}</strong>
               </div>
               <div class="featuresBox p-16">
@@ -341,6 +341,17 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  &__title {
+    strong {
+      min-height: 45px;
+      overflow: hidden;
+      -webkit-line-clamp: 2;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+    }
+  }
   a {
     color: #c9b175;
     border-bottom: 1px solid #c9b175;
