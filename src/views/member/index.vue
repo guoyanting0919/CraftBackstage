@@ -23,7 +23,6 @@
           <el-table-column min-width="150px" :label="'大頭照'">
             <template slot-scope="scope">
               <el-image style="width: 150px; height: 200px" :src="scope.row.pic" :alt="scope.row.name" fit="cover"></el-image>
-              <!-- <img :src="scope.row.pic" alt="" width="150px" /> -->
             </template>
           </el-table-column>
           <el-table-column min-width="80px" :label="'聯絡電話'">
@@ -46,7 +45,7 @@
               <span>{{ scope.row.jobTitle }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="120px" :label="'授課領域'">
+          <el-table-column min-width="120px" :label="(getMemberType == 'SYS_MEMBER_MANAGER') ? '工作內容' : '授課領域'">
             <template slot-scope="scope">
               <span>{{ scope.row.teachClass }}</span>
             </template>
@@ -133,8 +132,7 @@
         <el-form-item size="small" :label="'職稱'" prop="jobTitle">
           <el-input v-model="temp.jobTitle" placeholder="請輸入聯絡電話"></el-input>
         </el-form-item>
-
-        <el-form-item size="small" :label="'授課領域'" prop="teachClass">
+        <el-form-item size="small" :label="(temp.memberTypeId == 'SYS_MEMBER_MANAGER') ? '工作內容' : '授課領域'" prop="teachClass">
           <el-input type="textarea" v-model="temp.teachClass" :autosize="{ minRows: 2 }" placeholder="請輸入授課領域"></el-input>
         </el-form-item>
 
@@ -206,7 +204,7 @@ export default {
       listQuery: {
         MemberTypeId: "",
         page: 1,
-        limit: 999,
+        limit: 10,
         key: undefined,
       },
       temp: {
