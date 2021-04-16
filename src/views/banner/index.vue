@@ -16,10 +16,16 @@
             <el-card :body-style="{ padding: '0px' }">
               <el-image style="width: 100%; height: 450px" :src="item.pic" fit="cover"></el-image>
               <div class="p-16">
-                <strong>超連結：</strong>
-                <a class="urlLink" :href="item.links" target="_blank">
-                  {{ item.links }}
-                </a>
+                <div class="pb-8 workInfo">
+                  <strong>作品資訊：</strong>
+                  <p class="m-0">{{item.workInfo}}</p>
+                </div>
+                <div class="pb-8 urlLink">
+                  <strong>超連結：</strong>
+                  <a :href="item.links" target="_blank">
+                    {{ item.links }}
+                  </a>
+                </div>
               </div>
               <div class="featuresBox px-16 pb-16">
                 <el-button size="mini" type="warning" @click="handleEdit(item)" plain>
@@ -35,7 +41,7 @@
 
     <!-- modal -->
     <!-- add -->
-    <el-dialog :title="modalTitle" :visible.sync="openModal" width="30%">
+    <el-dialog :title="modalTitle" :visible.sync="openModal" width="40%">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px">
         <el-form-item size="small" :label="'上架日期'" prop="startDate">
           <el-date-picker class="fw" v-model="temp.startDate" type="date" value-format="yyyy-MM-dd" :picker-options="disBeforeTime" placeholder="請選擇上架日期">
@@ -50,6 +56,9 @@
             <el-button size="small" type="primary">上傳</el-button>
             <p class="m-0">{{ imgInfo.fileName }}</p>
           </el-upload>
+        </el-form-item>
+        <el-form-item size="small" :label="'作品資訊'">
+          <el-input v-model="temp.workInfo" placeholder="請輸入作品資訊"></el-input>
         </el-form-item>
         <el-form-item size="small" :label="'超連結'">
           <el-input v-model="temp.links" placeholder="請輸入網址"></el-input>
@@ -103,6 +112,7 @@ export default {
       temp: {
         id: "",
         pic: "",
+        workInfo: "",
         links: "",
         startDate: "",
         endDate: "",
@@ -180,6 +190,7 @@ export default {
         id: "",
         pic: vm.temp.pic,
         links: vm.temp.links,
+        workInfo: vm.temp.workInfo,
         startDate: vm.temp.startDate,
         endDate: vm.temp.endDate,
         sort: vm.temp.sort,
@@ -231,49 +242,6 @@ export default {
         }
       });
     },
-    setCover(data) {
-      const vm = this;
-      const modifyInfo = {
-        id: data.id,
-        roomId: data.roomId,
-        links: data.links,
-        isCover: true,
-        sort: data.sort,
-      };
-
-      vm.list.filter((res) => {
-        if (res.isCover) {
-          const cancelSet = {
-            id: res.id,
-            roomId: res.roomId,
-            links: res.links,
-            isCover: false,
-            sort: data.sort,
-          };
-          banner.updateBanner(cancelSet);
-          banner.updateBanner(modifyInfo).then((res) => {
-            if (res.code === 200) {
-              this.getList();
-            }
-          });
-        } else {
-          banner.updateBanner(modifyInfo).then((res) => {
-            if (res.code === 200) {
-              this.getList();
-            }
-          });
-        }
-      });
-      vm.$notify({
-        title: "成功",
-        message: "設置成功",
-        type: "success",
-        duration: 2000,
-      });
-    },
-    goPrev() {
-      this.$router.push("/equipment/index");
-    },
   },
   mounted() {
     this.getList();
@@ -282,12 +250,38 @@ export default {
 </script>
 
 <style lang="scss">
+.workInfo {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  strong {
+    min-width: 85px;
+    max-width: 85px;
+  }
+  p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .urlLink {
-  text-decoration: underline;
-  color: #d7c69a;
-  &:hover {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  strong {
+    min-width: 70px;
+    max-width: 70px;
+  }
+  a {
+    text-decoration: underline;
     color: #d7c69a;
-    font-weight: bolder;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    &:hover {
+      color: #d7c69a;
+    }
   }
 }
 .featuresBox {
@@ -297,9 +291,6 @@ export default {
   a {
     color: #c9b175;
     border-bottom: 1px solid #c9b175;
-  }
-  &__goPrev {
-    cursor: pointer;
   }
   &__del {
     color: #d63737;
