@@ -20,7 +20,7 @@
           </el-table-column>
           <el-table-column min-width="300px" :label="'內容'">
             <template slot-scope="scope">
-              <span>{{ scope.row.contents }}</span>
+              <span v-html="scope.row.contents"></span>
             </template>
           </el-table-column>
           <el-table-column min-width="80px" :label="'是否上傳檔案'">

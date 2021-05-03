@@ -56,10 +56,12 @@
           ></el-input> -->
         </el-form-item>
         <el-form-item size="small" :label="'圖片'" prop="pic">
-          <el-upload ref="imageUpload" :show-file-list="false" accept=".png,.jpg,.jpeg,.svg" class="upload-demo" action="" :http-request="customUpload" :limit="999">
+          <el-upload ref="imageUpload" :show-file-list="false" accept=".png,.jpg,.jpeg,.svg" class="upload-demo" action="" :http-request="customUpload" :limit="5">
             <el-button size="small" type="primary">上傳</el-button>
-            <p class="m-0">{{ imgInfo.fileName }}</p>
           </el-upload>
+          <div class="fw flex-row">
+            <p class="m-0 pr-10" v-for="item in groupFile" :key="item.id">{{ item.fileName }}</p>
+          </div>
         </el-form-item>
       </el-form>
 
@@ -108,7 +110,7 @@ export default {
       listQuery: {
         teachTypeId: "SYS_TEACH_COMPETITION",
         page: 1,
-        limit: 999,
+        limit: 10,
         key: undefined,
       },
       temp: {
@@ -151,7 +153,8 @@ export default {
           },
         ],
       },
-      imgInfo: {},
+      fileInfo: {},
+      groupFile: [],
       disBeforeTime: {
         disabledDate(date) {
           return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
@@ -188,7 +191,7 @@ export default {
             teachTypeId: "SYS_TEACH_COMPETITION",
             teachTypeName: "競賽得獎",
           };
-          this.imgInfo = {};
+          this.groupFile = [];
           this.modalTitle = "新增";
           this.openModal = true;
           break;
@@ -214,7 +217,7 @@ export default {
         this.temp = Object.assign({}, res.result);
       });
       this.modalTitle = "編輯";
-      this.imgInfo = {};
+      this.groupFile = [];
       this.openModal = true;
     },
     handleSelectionChange(data) {
@@ -233,9 +236,16 @@ export default {
       axios
         .post(`${process.env.VUE_APP_BASE_API}Files/Upload`, formData)
         .then((response) => {
-          vm.imgInfo = response.data.result[0];
-          vm.temp.pics =
-            "https://crafts.ntua.edu.tw/api/" + vm.imgInfo.filePath;
+          vm.fileInfo = response.data.result[0];
+          let getFile = {
+            id: vm.fileInfo.id,
+            fileName: vm.fileInfo.fileName,
+            files: "https://crafts.ntua.edu.tw/api/" + vm.fileInfo.filePath,
+          };
+          vm.groupFile.push(getFile);
+          vm.temp.pics = JSON.stringify(vm.groupFile);
+          // vm.temp.pics =
+          //   "https://crafts.ntua.edu.tw/api/" + vm.imgInfo.filePath;
         })
         .catch((error) => {
           console.log({ error });
