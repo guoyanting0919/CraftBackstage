@@ -15,9 +15,10 @@
               <span>{{ scope.row.releaseDate | moment("YYYY-MM-DD") }}</span>
             </template>
           </el-table-column>
-          <el-table-column min-width="150px" :label="'圖片'">
+          <el-table-column min-width="60px" :label="'圖片'">
             <template slot-scope="scope">
-              <img :src="scope.row.pics" alt="" width="150px" />
+              {{JSON.parse(scope.row.pics) ? JSON.parse(scope.row.pics).length : 0}}張
+              <!-- <img :src="scope.row.pics" alt="" width="150px" /> -->
             </template>
           </el-table-column>
           <el-table-column min-width="400px" :label="'標題'">
@@ -28,6 +29,7 @@
           <el-table-column property="setting" label="操作" width="220">
             <template slot-scope="scope">
               <el-button size="mini" type="warning" @click="handleEdit(scope.row)" v-if="hasButton('edit')">編輯</el-button>
+              <el-button size="mini" type="success" @click="viewPic(scope.row.pics)" plain :disabled="!scope.row.pics">預覽圖片</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -83,6 +85,19 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="delModal = false">取消</el-button>
         <el-button type="primary" @click="delAward">確認</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- view Pic -->
+    <el-dialog title="預覽圖片" :visible.sync="viewPicModal" width="40%">
+      <div class="p-8" v-for="item in picsGroup" :key="item.id">
+        <el-image style="width: 100%" :src="item.files" fit="cover"></el-image>
+        <div class="py-4">
+          <strong class="font-s-18">{{item.fileName}}</strong>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="danger" @click="viewPicModal = false" plain>關閉</el-button>
       </span>
     </el-dialog>
   </div>
@@ -160,6 +175,9 @@ export default {
           return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
         },
       },
+
+      viewPicModal: false,
+      picsGroup: null,
     };
   },
   methods: {
@@ -212,6 +230,7 @@ export default {
       }
     },
     rowClick() {},
+    /* 編輯列表資料 */
     handleEdit(data) {
       departmentTeachs.getDepartmentTeachs({ id: data.id }).then((res) => {
         this.temp = Object.assign({}, res.result);
@@ -219,6 +238,12 @@ export default {
       this.modalTitle = "編輯";
       this.groupFile = [];
       this.openModal = true;
+    },
+    /* 預覽圖片 */
+    viewPic(str) {
+      this.viewPicModal = true;
+      this.picsGroup = JSON.parse(str);
+      console.log(JSON.parse(str));
     },
     handleSelectionChange(data) {
       this.selectListId = data.map((res) => res.id);
